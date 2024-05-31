@@ -1,0 +1,59 @@
+.principal-inventario {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #f0f0f0;
+    overflow-y: hidden;
+}
+
+.cabezera-inventario {
+    background-color: #9b2e2e;
+    width: 100%;
+    flex: 0 0 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+        flex: 1;
+        color: white;
+        text-align: center;
+    }
+
+    button {
+        margin-right: 10px;
+    }
+}
+
+.contenido-inventario {
+    flex: 1;
+
+    .tabla {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid;
+
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #7d3c3c;
+            color: white;
+            text-align: center;
+            width: 15%;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr td {
+            height: 40px;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+    }
+}

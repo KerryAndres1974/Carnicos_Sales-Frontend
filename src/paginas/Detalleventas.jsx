@@ -47,10 +47,10 @@ function Detalleventas() {
 
     return (
         <div className='principal-ventas'>
-            <header className='cabezera'>
+            <header className='cabezera-ventas'>
                 <h1>DETALLE DE VENTA</h1>
             </header>
-            <main className='contenido'>
+            <main className='contenido-ventas'>
                 <div className='elementos'>
                     <table className='tabla-elementos'>
                         <thead>
@@ -90,7 +90,7 @@ function Detalleventas() {
                                     <td><label className="Liva">{fila.iva}</label></td>
                                     <td><label className="Ltotal">{fila.total}</label></td>
                                     <td>
-                                        <button className='boton-ventas' onClick={() => quitarFila(i)}>
+                                        <button onClick={() => quitarFila(i)}>
                                             Eliminar
                                         </button>
                                     </td>
@@ -99,12 +99,12 @@ function Detalleventas() {
                         </tbody>
                     </table>
                 </div>
-                <div className='detalles-ventas'>
+                <div className='detalles'>
                     <div className='titulos'>
                         <h2>Carniceria Carmol.</h2>
                         <label>CAJA</label>
                     </div>
-                    <div className='detalles'>
+                    <div className='descripcion'>
                         <div className='linea'>
                             <span className='descripcion'>Sub Total:</span>
                             <span className='monto'>$4.000</span>
@@ -120,10 +120,10 @@ function Detalleventas() {
                     </div>
                 </div>
             </main>
-            <footer className='piepagina'>
+            <footer className='piepagina-ventas'>
                 <div className='botones'>
-                    <button className='boton-ventas'>Cancelar Venta</button>
-                    <button className='boton-ventas'>Facturar</button>
+                    <button className='boton'>Cancelar Venta</button>
+                    <button className='boton'>Facturar</button>
                 </div>
             </footer>
         </div>
