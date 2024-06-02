@@ -6,6 +6,7 @@ import React from 'react';
 import App from './App';
 import './index.css';
 
+import Desautorizado from './paginas/Desautorizado.jsx';
 import Detalleventas from './paginas/Detalleventas.jsx';
 import Proveedores from './paginas/Proveedores.jsx';
 import Inventario from './paginas/Inventario.jsx';
@@ -19,8 +20,12 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
+    path: '/Desautorizado',
+    element: <Desautorizado />,
+  },
+  {
     path: '/',
-    element: <RutaProtegida />,
+    element: <RutaProtegida rolesPermitidos={['gerente', 'vendedor']} />,
     children: [
       {
         path: '/Detalleventas',
@@ -30,6 +35,12 @@ const router = createBrowserRouter([
         path: '/Inventario',
         element: <Inventario />,
       },
+    ]
+  },
+  {
+    path: '/',
+    element: <RutaProtegida rolesPermitidos={['gerente']} />,
+    children: [
       {
         path: '/Gerencia',
         element: <Gerencia />,

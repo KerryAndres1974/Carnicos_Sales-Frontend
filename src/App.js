@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './Auth/AuthProvider.jsx';
 import { useState } from 'react';
 import logo from './multimedia/logoEmp.jpg'
@@ -10,10 +10,6 @@ function App() {
     const [password, setPassword] = useState("");
     const goTo = useNavigate();
     const auth = useAuth();
-
-    if(!!auth.login()){
-        return <Navigate to='/detalleVentas' />
-    };
 
     async function Ingresar(e) {
         e.preventDefault();
@@ -28,9 +24,20 @@ function App() {
 
                 if (respuesta.ok) {
                     const { token } = await respuesta.json()
-                    auth.saveUser({ body: { accessToken: "dummyRefreshToken", refreshToken: token } });
-                    alert('Inicio sesion')
-                    goTo('/ejemplo')
+                    
+                    // decodificaion del token para obtener el cargo
+                    const [, cargaUtil] = token.split('.')
+                    const cargaUtilDeco = atob(cargaUtil)
+                    const usuario = JSON.parse(cargaUtilDeco)
+
+                    auth.saveUser({ body: { accessToken: "dummyRefreshToken", refreshToken: token, role: usuario.cargo } });
+                    console.log(usuario)
+                    if (usuario.cargo === 'gerente'){
+                        goTo('/Gerencia')
+                    } else {
+                        goTo('/Detalleventas')
+                    }
+
                 } else {
                     alert('Fallo sesion')
                 }
