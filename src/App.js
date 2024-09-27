@@ -16,9 +16,11 @@ function App() {
 
         try {
             if (username !== '' && password !== '') {
+                let datos = { email: username, password: password }
+                let datosjson = JSON.stringify(datos)
                 const respuesta = await fetch('http://localhost:8000/login', {
                     method: 'POST',
-                    body: JSON.stringify({ email: username, password: password }),
+                    body: datosjson,
                     headers: { 'Content-Type': 'application/json' },
                 })
 
@@ -30,8 +32,7 @@ function App() {
                     const cargaUtilDeco = atob(cargaUtil)
                     const usuario = JSON.parse(cargaUtilDeco)
 
-                    auth.saveUser({ body: { accessToken: "dummyRefreshToken", refreshToken: token, role: usuario.cargo } });
-                    console.log(usuario)
+                    auth.saveUser({ body: { accessToken: "dummyRefreshToken", refreshToken: token, role: usuario.cargo } })
                     if (usuario.cargo === 'gerente'){
                         goTo('/Gerencia')
                     } else {
@@ -57,7 +58,7 @@ function App() {
                     <img src={logo} alt="" />
                 </div>
                 <div className='contenedor-formulario'>
-                    <h1>Carniceria Carmol.</h1>
+                    <h1>Carniceria Integrada.</h1>
 
                     <form className='formulario' onSubmit={Ingresar}>
                         <input 

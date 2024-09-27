@@ -8,14 +8,19 @@
 
 .cabezera-ventas {
     background-color: #9b2e2e;
-    width: 100%;
     flex: 0 0 10%;
     display: grid;
     place-items: center;
+    position: relative;
 
     h1 {
+        position: absolute;
         color: white;
-        font: Arial;
+    }
+
+    div {
+        position: absolute;
+        right: 30px;
     }
 }
 
@@ -74,6 +79,7 @@
                 flex: 1;
                 color: white;
                 text-align: center;
+                margin-left: 70px;
             }
 
             label {
@@ -92,6 +98,7 @@
             flex-direction: column;
             align-items: flex-end;
             justify-content: space-evenly;
+            font-size: 1.5rem;
 
             .linea {
                 width: 15%;
@@ -130,4 +137,44 @@
             background-color: #9b2e2e;
         }
     }
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.contenido-modal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.contenido-modal h2 {
+    margin-top: 0;
+}
+
+.contenido-modal table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.contenido-modal table, .contenido-modal th, .contenido-modal td {
+    border: 1px solid #ddd;
+}
+
+.contenido-modal th, .contenido-modal td {
+    padding: 8px;
+    text-align: left;
 }

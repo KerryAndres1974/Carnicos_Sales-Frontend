@@ -1,9 +1,15 @@
 import '../hojasEstilos/Gerencia.css'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Auth/AuthProvider'
 
 function Gerencia() {
-
+    const auth = useAuth()
     const goTo = useNavigate();
+
+    const deslogeado = () => {
+        window.location.reload()
+        auth.logout()
+    }
 
     return(
         <div className='principal-gerencia'>
@@ -16,6 +22,7 @@ function Gerencia() {
             <section>
                 <button onClick={() => {goTo('/Compras')}}>Compras</button>
                 <button onClick={() => {goTo('/Proveedores')}}>Proveedores</button>
+                <button onClick={deslogeado}>Salir</button>
             </section>
         </div>
     );

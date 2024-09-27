@@ -1,16 +1,52 @@
 import { useNavigate } from 'react-router-dom'
 import '../hojasEstilos/Inventario.css'
+import { useAuth } from '../Auth/AuthProvider';
+import { useEffect, useState } from 'react';
 
 function Inventario() {
-
+    const auth = useAuth()
     const goTo = useNavigate()
-    // logica para traer todo el inventario de la base de datos
+    const [productos, setProductos] = useState([])
+
+    const logeado = () => {
+        const access = auth.login()
+        return access
+    }
+
+    const deslogeado = () => {
+        window.location.reload()
+        auth.logout()
+    }
+
+    useEffect(() => {
+        const cargarProductos = async () => {
+            try {
+                const respuesta = await fetch('http://localhost:8000/all-products')
+
+                if (respuesta.ok) {
+                    const datos = await respuesta.json()
+                    setProductos(datos)
+                } else {
+                    alert('Error al obtener los productos')
+                }
+            } catch(error) {
+                console.error('Error al realizar la petición:', error)
+            }
+        }
+        cargarProductos()
+    }, [])
 
     return(
         <div className='principal-inventario'>
             <header className='cabezera-inventario'>
                 <h1>INVENTARIO</h1>
-                <button onClick={() => {goTo('/Gerencia')}}>regresar</button>
+                {logeado().role === 'vendedor' && <div>
+                    <button onClick={deslogeado}>salir</button>
+                    <button onClick={() => {goTo('/Detalleventas')}}>ventas</button>
+                </div>}
+                {logeado().role === 'gerente' && <div>
+                    <button onClick={() => {goTo('/Gerencia')}}>regresar</button>
+                </div>}
             </header>
             <main className='contenido-inventario'>
                 <table className='tabla'>
@@ -26,33 +62,17 @@ function Inventario() {
                         </tr>
                     </thead>
                     <tbody className='elementos'>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {productos.map((producto) => (
+                            <tr key={producto.NIT}>
+                                <td>{producto.idproducto}</td>
+                                <td>{producto.tipoproducto}</td>
+                                <td>{producto.nombreproducto}</td>
+                                <td>{producto.cantidadxlibra}</td>
+                                <td>{producto.fechacompra}</td>
+                                <td>{producto.fechavencimiento}</td>
+                                <td>{producto.precioxlibra}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </main>
