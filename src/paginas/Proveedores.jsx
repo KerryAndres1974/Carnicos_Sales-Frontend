@@ -15,7 +15,7 @@ function Proveedores() {
         const cargarProveedores = async () => {
             // logica para traer los proovedores desde el backend
             try {
-                const respuesta = await fetch('http://localhost:8000/all-providers')
+                const respuesta = await fetch('http://localhost:8000/get-providers')
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json()

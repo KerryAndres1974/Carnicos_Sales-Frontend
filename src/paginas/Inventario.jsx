@@ -21,7 +21,7 @@ function Inventario() {
     useEffect(() => {
         const cargarProductos = async () => {
             try {
-                const respuesta = await fetch('http://localhost:8000/all-products')
+                const respuesta = await fetch('http://localhost:8000/get-products')
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json()

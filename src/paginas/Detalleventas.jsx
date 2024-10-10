@@ -36,7 +36,7 @@ function Detalleventas() {
             const idp = e.target.value;
             
             try {
-                const response = await fetch(`http://localhost:8000/verificar-producto/${idp}`);
+                const response = await fetch(`http://localhost:8000/get-product/${idp}`);
                 const data = await response.json();
     
                 if (data) {
