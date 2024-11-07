@@ -1,4 +1,4 @@
-import '../hojasEstilos/Proveedores.css'
+import '../estilos/Proveedores.css'
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 

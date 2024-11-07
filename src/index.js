@@ -13,6 +13,7 @@ import Inventario from './paginas/Inventario.jsx';
 import Gerencia from './paginas/Gerencia.jsx';
 import Compras from './paginas/Compras.jsx';
 import Informe from './paginas/Informe.jsx';
+import Ingreso from './paginas/Ingreso.jsx';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: '/Desautorizado',
     element: <Desautorizado />,
+  },
+  {
+    path: '/Ingreso',
+    element: <Ingreso />,
   },
   {
     path: '/',

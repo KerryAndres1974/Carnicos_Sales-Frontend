@@ -1,4 +1,4 @@
-import '../hojasEstilos/Gerencia.css'
+import '../estilos/Gerencia.css'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider'
 

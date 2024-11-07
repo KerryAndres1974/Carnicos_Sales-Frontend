@@ -1,4 +1,4 @@
-import '../hojasEstilos/Informe.css'
+import '../estilos/Informe.css'
 import { useNavigate } from 'react-router-dom';
 
 function Informe() {

@@ -1,4 +1,4 @@
-import '../hojasEstilos/Detalleventas.css'
+import '../estilos/Detalleventas.css'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../Auth/AuthProvider'

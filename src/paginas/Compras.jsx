@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../hojasEstilos/Compras.css'
+import '../estilos/Compras.css'
 import { useNavigate } from 'react-router-dom';
 
 function Compras() {
@@ -179,4 +179,4 @@ function Compras() {
     );
 }
 
-export default Compras
+export default Compras;

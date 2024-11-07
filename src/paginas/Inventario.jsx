@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import '../hojasEstilos/Inventario.css'
+import '../estilos/Inventario.css'
 import { useAuth } from '../Auth/AuthProvider';
 import { useEffect, useState } from 'react';
 
