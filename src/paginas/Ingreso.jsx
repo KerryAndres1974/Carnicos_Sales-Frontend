@@ -52,7 +52,7 @@ function Ingreso() {
     };
 
     return (
-        <div className='principal'>
+        <div className='principal-ingreso'>
             <div className='contenedor'>
                 <div className='logo'>
                     <img src={logo} alt="" />
