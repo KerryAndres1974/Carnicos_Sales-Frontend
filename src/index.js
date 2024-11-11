@@ -9,11 +9,13 @@ import './index.css';
 import Desautorizado from './paginas/Desautorizado.jsx';
 import Detalleventas from './paginas/Detalleventas.jsx';
 import Proveedores from './paginas/Proveedores.jsx';
+import RegistroEmp from './paginas/RegistroEmp.jsx';
 import Inventario from './paginas/Inventario.jsx';
 import Gerencia from './paginas/Gerencia.jsx';
 import Compras from './paginas/Compras.jsx';
 import Informe from './paginas/Informe.jsx';
 import Ingreso from './paginas/Ingreso.jsx';
+import Recuperar from './paginas/Recuperar.jsx';
 
 const router = createBrowserRouter([
   {
@@ -27,6 +29,14 @@ const router = createBrowserRouter([
   {
     path: '/Ingreso',
     element: <Ingreso />,
+  },
+  {
+    path: '/Registro-empleados',
+    element: <RegistroEmp />,
+  },
+  {
+    path: '/Recuperar-contraseña',
+    element: <Recuperar />,
   },
   {
     path: '/',

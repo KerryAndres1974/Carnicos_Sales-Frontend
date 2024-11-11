@@ -21,7 +21,10 @@ function Inventario() {
     useEffect(() => {
         const cargarProductos = async () => {
             try {
-                const respuesta = await fetch('http://localhost:8000/get-products')
+                const respuesta = await fetch('http://localhost:8000/get-products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json()
@@ -63,7 +66,7 @@ function Inventario() {
                     </thead>
                     <tbody className='elementos'>
                         {productos.map((producto) => (
-                            <tr key={producto.NIT}>
+                            <tr key={producto.idproducto}>
                                 <td>{producto.idproducto}</td>
                                 <td>{producto.tipoproducto}</td>
                                 <td>{producto.nombreproducto}</td>

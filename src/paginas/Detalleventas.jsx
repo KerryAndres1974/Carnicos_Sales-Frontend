@@ -1,32 +1,32 @@
-import '../estilos/Detalleventas.css'
-import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-import { useAuth } from '../Auth/AuthProvider'
-import { v4 as uuidv4 } from 'uuid'
+import '../estilos/Detalleventas.css';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useAuth } from '../Auth/AuthProvider';
+import { v4 as uuidv4 } from 'uuid';
 
 function Detalleventas() {
-    const auth = useAuth()
-    const goTo = useNavigate()
-    const [ventana, setVentana] = useState(false)
-    const [factura, setFactura] = useState(null)
+    const auth = useAuth();
+    const goTo = useNavigate();
+    const [ventana, setVentana] = useState(false);
+    const [factura, setFactura] = useState(null);
     const [filas, setFilas] = useState([
-        {cantidad: '1', idProducto: '', articulo: '', costoSinIVA: '', iva: '', total: ''}])
+        {cantidad: '1', idProducto: '', articulo: '', precio: '', total: ''}]);
 
     const logeado = () => {
-        const accesstoken = auth.login()
-        return accesstoken
+        const accesstoken = auth.login();
+        return accesstoken;
     }
 
     const deslogeado = () => {
-        window.location.reload()
-        auth.logout()
+        window.location.reload();
+        auth.logout();
     }
 
     const calcularTotal = () =>{
         return filas.reduce((acc, fila) => {
-            const subtotal = parseFloat(fila.costoSinIVA || 0)
-            return acc + (subtotal + (subtotal * (19 / 100)))
-        }, 0).toFixed(2)
+            const subtotal = parseFloat(fila.total || 0);
+            return acc + subtotal
+        }, 0)
     }
 
     const validarFila = async (e, fila) => {
@@ -40,13 +40,12 @@ function Detalleventas() {
                 const data = await response.json();
     
                 if (data) {
-                    const producto = data[0]
-                    const cantidad = document.getElementById(`cant-${fila}`).value
+                    const producto = data[0];
+                    const cantidad = document.getElementById(`cant-${fila}`).value;
                     const nuevasFilas = [...filas];
                     nuevasFilas[fila].articulo = producto.nombreproducto; // Asignar nombre del producto
-                    nuevasFilas[fila].costoSinIVA = parseFloat(producto.precioxlibra) * cantidad; // Asignar precio del producto
-                    nuevasFilas[fila].iva = '19%'
-                    nuevasFilas[fila].total = parseFloat(producto.precioxlibra * (19/100) * cantidad) + (parseFloat(producto.precioxlibra) * cantidad)
+                    nuevasFilas[fila].precio = parseFloat(producto.precioxlibra); // Asignar precio del producto
+                    nuevasFilas[fila].total = parseFloat(producto.precioxlibra) * cantidad;
                     setFilas(nuevasFilas);
 
                     // Enfoque al input idProducto de la siguiente fila si existe
@@ -54,7 +53,7 @@ function Detalleventas() {
                         document.getElementById(`idProducto-${fila + 1}`).focus();
                     } else {
                         // Añadir una nueva fila si quieres seguir añadiendo
-                        setFilas([...filas, { cantidad: '1', idProducto: '', articulo: '', costoSinIVA: '', iva: '', total: '' }]);
+                        setFilas([...filas, { cantidad: '1', idProducto: '', articulo: '', precio: '', total: '' }]);
                         setTimeout(() => {
                             document.getElementById(`idProducto-${fila + 1}`).focus();
                         }, 0);
@@ -71,43 +70,74 @@ function Detalleventas() {
     }
 
     const valorColumna = (e, fila, campo) => {
-        const nuevasFilas = [...filas]
-        nuevasFilas[fila][campo] = e.target.value
-        setFilas(nuevasFilas)
+        const nuevasFilas = [...filas];
+        nuevasFilas[fila][campo] = e.target.value;
+        setFilas(nuevasFilas);
     }
 
     const quitarFila = (i) => {
         if (filas.length <= 1){
-            const reinicio = [...filas]
-            reinicio[0].idProducto = ''
-            setFilas(reinicio)
+            const reinicio = [...filas];
+            reinicio[0].idProducto = '';
+            setFilas(reinicio);
         } else {
-            const nuevasFilas = filas.filter((_, fila) => fila !== i)
-            setFilas(nuevasFilas)
+            const nuevasFilas = filas.filter((_, fila) => fila !== i);
+            setFilas(nuevasFilas);
         }
     }
 
-    const ventaCancelada = () => {
-        setFilas([{cantidad: '1', idProducto: '', articulo: '', costoSinIVA: '', iva: '', total: ''}])
+    const reinicio = () => {
+        setFilas([{cantidad: '1', idProducto: '', articulo: '', precio: '', total: ''}]);
     }
 
     const facturarVentas = () => {
-        const idfactura = uuidv4()
-        const fecha = new Date().toLocaleString()
+        const idfactura = uuidv4();
+        const fecha = new Date().toLocaleString();
 
         const detalles = filas.slice(0, -1).map(fila => {
-            const subtotal = parseFloat(fila.cantidad) * parseFloat(fila.costoSinIVA)
+            const subtotal = parseFloat(fila.cantidad) * parseFloat(fila.precio);
             return {
-                ...fila, subtotal: subtotal.toFixed(2)
+                ...fila, subtotal: subtotal
             }
         })
-        setFactura({ id: idfactura, fecha: fecha, detalles: detalles })
-        setVentana(true)
+        setFactura({ id: idfactura, fecha: fecha, detalles: detalles });
+        setVentana(true);
     }
 
-    const cerrarVentana = () => {
-        setVentana(false)
-        ventaCancelada()
+    async function sendFacturas(e) {
+        e.preventDefault();
+
+        const filasFiltradas = filas.slice(0,-1).map(fila => ({
+            id: fila.idProducto,
+            cantidad: fila.cantidad
+        }));
+        
+        try {
+            const response = await fetch('http://localhost:8000/new-venta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: factura.id,
+                    nombreempleado: logeado().role,
+                    totalventa: calcularTotal(),
+                    fecha: factura.fecha,
+                    producto: filasFiltradas
+                })
+            });
+
+            if (response.ok) {
+                alert('Se ha finalizado la venta con exito');
+                window.location.reload();
+            } else {
+                throw new Error('Error en la solicitud al backend');
+            }
+    
+            const data = await response.json();
+            console.log('Respuesta del backend:', data);
+
+        } catch (error) {
+            console.error('Error al enviar los datos al backend:', error);
+        }
     }
 
     return (
@@ -135,8 +165,7 @@ function Detalleventas() {
                                 <th>Cantidad(lbr)</th>
                                 <th>Id_Producto</th>
                                 <th>Articulo</th>
-                                <th>Costo sin IVA</th>
-                                <th>IVA</th>
+                                <th>Costo por Libra</th>
                                 <th>Subtotal</th>
                                 <th></th>
                             </tr>
@@ -164,8 +193,7 @@ function Detalleventas() {
                                         />
                                     </td>
                                     <td><label className="Larticulo">{fila.articulo}</label></td>
-                                    <td><label className="Lcosto">{fila.costoSinIVA}</label></td>
-                                    <td><label className="Liva">{fila.iva}</label></td>
+                                    <td><label className="Lcosto">{fila.precio}</label></td>
                                     <td><label className="Ltotal">{fila.total}</label></td>
                                     <td>
                                         <button onClick={() => quitarFila(i)}>
@@ -192,7 +220,7 @@ function Detalleventas() {
             </main>
             <footer className='piepagina-ventas'>
                 <div className='botones'>
-                    <button className='boton' onClick={ventaCancelada}>Cancelar Venta</button>
+                    <button className='boton' onClick={reinicio}>Cancelar Venta</button>
                     <button className='boton' onClick={facturarVentas}>Facturar</button>
                 </div>
             </footer>
@@ -217,14 +245,17 @@ function Detalleventas() {
                                     <tr key={i}>
                                         <td>{detalle.cantidad}</td>
                                         <td>{detalle.articulo}</td>
-                                        <td>{detalle.costoSinIVA}</td>
+                                        <td>{detalle.precio}</td>
                                         <td>{detalle.subtotal}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                         <p><strong>Total:</strong> ${calcularTotal()}</p>
-                        <button onClick={cerrarVentana}>Cerrar</button>
+                        <div className='botones-modal'>
+                            <button onClick={() => setVentana(false)}>Cerrar</button>
+                            <button onClick={sendFacturas}>Confirmar</button>
+                        </div>
                     </div>
                 </div>
             )}

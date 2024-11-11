@@ -59,24 +59,17 @@ function Compras() {
 
     async function enviarDatos(e) {
         e.preventDefault()
-        // funcion para enviar los datos de las compras al backend
-
-        const datosJSON = JSON.stringify(filas)
-        console.log(datosJSON)
-        
+        // funcion para enviar los datos de las compras al backend        
         try {
             const response = await fetch('http://localhost:8000/new-product', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: datosJSON
+                body: JSON.stringify(filas)
             });
     
             if (!response.ok) {
                 throw new Error('Error en la solicitud al backend');
             }
-    
-            const data = await response.json();
-            console.log('Respuesta del backend:', data);
     
             // Reiniciar las filas si la solicitud fue exitosa
             setFilas([{cantidadxlibra: '1', precioxlibra: '', nombreproducto: '', tipoproducto: '', idproveedor: '', preciocompra: ''}]);

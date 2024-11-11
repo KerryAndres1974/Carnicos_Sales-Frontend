@@ -1,4 +1,4 @@
-.principal-ingreso {
+.principal-recuperar {
     height: 100vh;
     font-family: Roboto;
     font-size: 1rem;
@@ -82,10 +82,6 @@ h1 {
     font-style: italic;
 }
 
-.contenedor-rutas {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
+.ruta {
     list-style: none;
-    width: 90%;
 }
