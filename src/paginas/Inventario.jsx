@@ -4,9 +4,11 @@ import { useAuth } from '../Auth/AuthProvider';
 import { useEffect, useState } from 'react';
 
 function Inventario() {
-    const auth = useAuth()
-    const goTo = useNavigate()
-    const [productos, setProductos] = useState([])
+    const auth = useAuth();
+    const goTo = useNavigate();
+    const [tipo, setTipo] = useState('');
+    const [nombre, setNombre] = useState('');
+    const [productos, setProductos] = useState([]);
 
     const logeado = () => {
         const access = auth.login()
@@ -23,7 +25,11 @@ function Inventario() {
             try {
                 const respuesta = await fetch('http://localhost:8000/get-products', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombreproducto: nombre,
+                        tipoproducto: tipo
+                    })
                 });
 
                 if (respuesta.ok) {
@@ -37,10 +43,11 @@ function Inventario() {
             }
         }
         cargarProductos()
-    }, [])
+    }, [tipo, nombre])
 
     return(
         <div className='principal-inventario'>
+
             <header className='cabezera-inventario'>
                 <h1>INVENTARIO</h1>
                 {logeado().role === 'vendedor' && <div>
@@ -51,33 +58,56 @@ function Inventario() {
                     <button onClick={() => {goTo('/Gerencia')}}>regresar</button>
                 </div>}
             </header>
+
             <main className='contenido-inventario'>
-                <table className='tabla'>
-                    <thead className='titulos'>
-                        <tr>
-                            <th>Id_Producto</th>
-                            <th>Tipo Producto</th>
-                            <th>Nombre</th>
-                            <th>Cantidad(lbr)</th>
-                            <th>Fecha Compra</th>
-                            <th>Fecha vencimiento</th>
-                            <th>Precio(lbr)</th>
-                        </tr>
-                    </thead>
-                    <tbody className='elementos'>
+
+                <section className='seccion-buscadores'>
+                    <input 
+                        type='text'
+                        placeholder='Nombre del producto'
+                        className='buscador'
+                        onChange={(e) => setNombre(e.target.value)} />
+
+                    <select 
+                        value={tipo}
+                        className='select' 
+                        onChange={(e) => {e.target.value === 'Tipo' ? setTipo('') : setTipo(e.target.value)}}
+                        title='Tipo' >
+                        <option>Tipo</option>
+                        <option>Res</option>
+                        <option>Cerdo</option>
+                        <option>Pollo</option>
+                        <option>Cordero</option>
+                        <option>Pavo</option>
+                        <option>Pescado</option>
+                    </select>
+                </section>
+
+                <section className='seccion-tabla'>
+                    <header className='cabeza-tabla'>
+                        <div className='celda'>Id_Producto</div>
+                        <div className='celda'>Tipo Producto</div>
+                        <div className='celda'>Nombre</div>
+                        <div className='celda'>Cantidad(lbr)</div>
+                        <div className='celda'>Fecha Compra</div>
+                        <div className='celda'>Fecha Vencimiento</div>
+                        <div className='celda'>Precio(lbr)</div>
+                    </header>
+                    <body className='cuerpo-tabla'>
                         {productos.map((producto) => (
-                            <tr key={producto.idproducto}>
-                                <td>{producto.idproducto}</td>
-                                <td>{producto.tipoproducto}</td>
-                                <td>{producto.nombreproducto}</td>
-                                <td>{producto.cantidadxlibra}</td>
-                                <td>{producto.fechacompra}</td>
-                                <td>{producto.fechavencimiento}</td>
-                                <td>{producto.precioxlibra}</td>
-                            </tr>
+                            <div className="elementos" key={producto.idproducto}>
+                                <div className="celda">{producto.idproducto}</div>
+                                <div className="celda">{producto.tipoproducto}</div>
+                                <div className="celda">{producto.nombreproducto}</div>
+                                <div className="celda">{producto.cantidadxlibra}</div>
+                                <div className="celda">{producto.fechacompra}</div>
+                                <div className="celda">{producto.fechavencimiento}</div>
+                                <div className="celda">{producto.precioxlibra}</div>
+                            </div>
                         ))}
-                    </tbody>
-                </table>
+                    </body>
+                </section>
+                
             </main>
         </div>
     );

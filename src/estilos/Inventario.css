@@ -1,23 +1,25 @@
 .principal-inventario {
     display: flex;
+    overflow: hidden;
     flex-direction: column;
     height: 100vh;
     background: #f0f0f0;
+    overflow-y: auto;
 }
 
 .cabezera-inventario {
     background-color: #9b2e2e;
     width: 100%;
-    flex: 0 0 10%;
+    height: 10%;
     display: grid;
     place-items: center;
     position: relative;
-
+    
     h1 {
         color: white;
         position: absolute;
     }
-
+    
     div {
         position: absolute;
         right: 30px;
@@ -25,35 +27,76 @@
 }
 
 .contenido-inventario {
-    flex: 1;
-    overflow-y: scroll;
+    height: 90%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: column;
 
-    .tabla {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid;
+    .seccion-buscadores {
+        width: 90%;
+        height: 10%;
+        display: flex;
+        justify-content: space-evenly;
 
-        td, th {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
+        .buscador {
+            width: 70%;
+            border: 2px solid black;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 18px;
+            outline: none;
+            &:focus{
+                border: 2px solid #9b2e2e;
+            }
         }
-
-        th {
-            background-color: #7d3c3c;
-            color: white;
-            text-align: center;
-            width: 15%;
-        }
-
-        tbody tr:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-
-        tbody tr td {
-            height: 40px;
-            padding: 8px;
-            box-sizing: border-box;
+        
+        .select {
+            width: 20%;
+            height: 80%;
+            border: 2px solid black;
+            border-radius: 8px;
+            font-size: 18px;
+            padding: 0 12px;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            background: url(../../public/caret-down.svg) no-repeat;
+            background-position: calc(100% - 10px) center;
+            &:focus{
+                border: 2px solid #9b2e2e;
+                outline: none;
+                color: #9b2e2e;
+            }
+            option:first-child {
+                background: #ccc;
+            }
         }
     }
+    /* ------------------------------------------------------------------------------- */
+    .seccion-tabla {
+        width: 90%;
+        height: 80%;
+        max-height: 80%;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .seccion-tabla .cabeza-tabla {
+        width: 100%;
+        display: flex;
+        background: #9b2e2e;
+        justify-content: space-evenly;
+
+        .celda {
+            color: #fff;
+            border: 1px solid #ddd;
+            padding: 8px;
+            width: 15%;
+            text-align: center;
+        }
+    }
+    
 }

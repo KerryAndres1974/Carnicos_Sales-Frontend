@@ -198,8 +198,10 @@
     max-width: 500px;
     width: 100%;
 
-    h2 {
-        margin-top: 0;
+    .campo {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
     }
     
     table {

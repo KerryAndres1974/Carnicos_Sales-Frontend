@@ -1,8 +1,8 @@
 import '../estilos/Detalleventas.css';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { useAuth } from '../Auth/AuthProvider';
+import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { useState } from 'react';
 
 function Detalleventas() {
     const auth = useAuth();
@@ -43,8 +43,8 @@ function Detalleventas() {
                     const producto = data[0];
                     const cantidad = document.getElementById(`cant-${fila}`).value;
                     const nuevasFilas = [...filas];
-                    nuevasFilas[fila].articulo = producto.nombreproducto; // Asignar nombre del producto
-                    nuevasFilas[fila].precio = parseFloat(producto.precioxlibra); // Asignar precio del producto
+                    nuevasFilas[fila].articulo = producto.nombreproducto;
+                    nuevasFilas[fila].precio = parseFloat(producto.precioxlibra);
                     nuevasFilas[fila].total = parseFloat(producto.precioxlibra) * cantidad;
                     setFilas(nuevasFilas);
 
@@ -131,10 +131,7 @@ function Detalleventas() {
             } else {
                 throw new Error('Error en la solicitud al backend');
             }
-    
-            const data = await response.json();
-            console.log('Respuesta del backend:', data);
-
+            
         } catch (error) {
             console.error('Error al enviar los datos al backend:', error);
         }

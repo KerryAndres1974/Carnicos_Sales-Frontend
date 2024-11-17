@@ -1,8 +1,21 @@
 import { Link } from 'react-router-dom';
 import logo from '../multimedia/logoEmp.jpg';
 import '../estilos/Recuperar.css';
+import { useState } from 'react';
 
 function Recuperar() {
+    const [correo, setCorreo] = useState('');
+
+    /*async function revisionCorreo(e) {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('http://localhost:8000/');
+        } catch (err) {
+
+        }
+
+    }*/
 
     return (
         <div className='principal-recuperar'>
@@ -18,8 +31,8 @@ function Recuperar() {
                             className='input' 
                             type='text' 
                             placeholder='Ingresa tu correo electronico'
-                            //value={password}
-                            //onChange={(e) => setPassword(e.target.value)}
+                            value={correo}
+                            onChange={(e) => setCorreo(e.target.value)}
                         />
                         <input 
                             className='boton' 

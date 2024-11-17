@@ -8,11 +8,14 @@ function App() {
     const [tipo, setTipo] = useState('');
     const [nombre, setNombre] = useState('');
     const [cantidades, setCantidades] = useState('');
-    const [reservados, setReservados] = useState({})
+    const [reservados, setReservados] = useState({});
     const [productos, setProductos] = useState([]);
     const [seleccionados, setSeleccionados] = useState([]);
     const [ventana, setVentana] = useState(false);
     const [factura, setFactura] = useState(null);
+    const [domicilio, setDomicilio] = useState(false);
+
+    const [infoUser, setInfoUser] = useState({ cor: '', nom: '', dir: '', tel: '', })
     
     useEffect(() => {
         const cargarProductos = async () => {
@@ -41,12 +44,22 @@ function App() {
 
     async function sendReservas(e) {
         e.preventDefault();
+
+        if (domicilio) {
+            const camposFaltantes = Object.entries(infoUser).filter(([_, valor]) => !valor);
+            if (camposFaltantes.length > 0) {
+                alert('Debes llenar todos los campos para pedir a domicilio');
+                return;
+            }
+        }
+
+        const datos = JSON.stringify({ reserva: reservados, cliente: infoUser })
         
         try {
             const response = await fetch('http://localhost:8000/new-reserva', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reservados)
+                body: datos
             });
 
             if (response.ok) {
@@ -185,6 +198,40 @@ function App() {
                         <h2>Tiquete de Reserva</h2>
                         <p><strong>ID:</strong> {factura.id}</p>
                         <p><strong>Fecha:</strong> {factura.fecha}</p>
+                        <div className='campo'>
+
+                            <input 
+                                type='text' 
+                                placeholder='Correo Electronico' 
+                                value={infoUser.cor}
+                                onChange={(e) => setInfoUser((prev) => ({ ...prev, cor: e.target.value }))} />
+                            
+                            <input 
+                                type='text' 
+                                placeholder='Nombre del Cliente' 
+                                value={infoUser.nom}
+                                onChange={(e) => setInfoUser((prev) => ({ ...prev, nom: e.target.value }))} />
+
+                            {!domicilio && <button onClick={() => 
+                                alert('Estos campos son opcionales, queremos almacenar tu informacion para futuros descuentos o recompensas.')}>?
+                            </button>}
+
+                        </div>
+
+                        {domicilio && <div className='campo'>
+                            <input 
+                                type='text' 
+                                placeholder='Direccion' 
+                                value={infoUser.dir} 
+                                onChange={(e) => setInfoUser((prev) => ({ ...prev, dir: e.target.value }))} />
+
+                            <input 
+                                type='text' 
+                                placeholder='Numero Telefono' 
+                                value={infoUser.tel} 
+                                onChange={(e) => setInfoUser((prev) => ({ ...prev, tel: e.target.value }))} />
+                        </div>}
+
                         <table>
                             <thead>
                                 <tr>
@@ -205,10 +252,13 @@ function App() {
                                 ))}
                             </tbody>
                         </table>
+
                         <p><strong>Total:</strong> ${calcularTotal()}</p>
+
                         <div className='botones-modal'>
                             <button onClick={() => setVentana(false)}>Cancelar</button>
-                            <button onClick={sendReservas}>Confirmar</button>
+                            <button onClick={sendReservas}>Confirmar Reserva</button>
+                            <button onClick={() => setDomicilio((prev) => !prev)}>Pedir Domicilio</button>
                         </div>
                     </div>
                 </div>

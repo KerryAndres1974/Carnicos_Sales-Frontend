@@ -1,37 +1,38 @@
-import '../estilos/Proveedores.css'
+import '../estilos/Proveedores.css';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 function Proveedores() {
-    const goTo = useNavigate()
-    const [proveedores, setProveedores] = useState([])
-    const [inputs, setInputs] = useState(false)
-    const [texto, setTexto] = useState('Añadir Proveedor')
+    const goTo = useNavigate();
+    const [proveedores, setProveedores] = useState([]);
+    const [inputs, setInputs] = useState(false);
+    const [texto, setTexto] = useState('Añadir Proveedor');
     const [filas, setFilas] = useState([
-        {Nit: '', nombre: '', telefono: '', direccion: '', tipo: ''}])
+        {Nit: '', nombre: '', telefono: '', direccion: '', tipo: ''}]);
     
     useEffect(() => {
         
         const cargarProveedores = async () => {
             // logica para traer los proovedores desde el backend
             try {
-                const respuesta = await fetch('http://localhost:8000/get-providers')
+                const respuesta = await fetch('http://localhost:8000/get-providers');
 
                 if (respuesta.ok) {
-                    const datos = await respuesta.json()
-                    setProveedores(datos)
+                    const datos = await respuesta.json();
+                    setProveedores(datos);
                 } else {
-                    alert('Error al obtener los proveedores')
+                    alert('Error al obtener los proveedores');
                 }
             } catch(error) {
-                console.error('Error al realizar la petición:', error)
+                console.error('Error al realizar la petición:', error);
             }
         }
-        cargarProveedores()
-    }, [])
+        cargarProveedores();
+    }, []);
 
-    const habilitar = () => {
-        setInputs(true)
+    async function habilitar(e) {
+        e.preventDefault();
+        setInputs(true);
 
         if (texto === 'Guardar') {
             const filaActual = filas[filas.length - 1]
@@ -50,17 +51,22 @@ function Proveedores() {
                     tipo: filaActual.tipo
                 })
 
-                fetch('http://localhost:8000/new-provider', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', },
-                    body: datosJSON
-                })
-                .then(data => {
-                    console.log('Respuesta del backend:', data);
-                })
-                .catch(error => {
-                    console.error('Error al enviar los datos al backend:', error);
-                })
+                try {
+                    const response = await fetch('http://localhost:8000/new-provider', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', },
+                        body: datosJSON
+                    });
+
+                    if (response.ok) {
+                        alert('Se ha agregado el nuevo proveedor con exito');
+                    } else {
+                        throw new Error('Error en la solicitud al backend');
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                }
 
                 setTexto('Añadir Proveedor')
 
