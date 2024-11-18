@@ -95,14 +95,14 @@ function Inventario() {
                     </header>
                     <body className='cuerpo-tabla'>
                         {productos.map((producto) => (
-                            <div className="elementos" key={producto.idproducto}>
-                                <div className="celda">{producto.idproducto}</div>
-                                <div className="celda">{producto.tipoproducto}</div>
-                                <div className="celda">{producto.nombreproducto}</div>
-                                <div className="celda">{producto.cantidadxlibra}</div>
-                                <div className="celda">{producto.fechacompra}</div>
-                                <div className="celda">{producto.fechavencimiento}</div>
-                                <div className="celda">{producto.precioxlibra}</div>
+                            <div className='elementos' key={producto.idproducto}>
+                                <div className='celda'>{producto.idproducto}</div>
+                                <div className='celda'>{producto.tipoproducto}</div>
+                                <div className='celda'>{producto.nombreproducto}</div>
+                                <div className='celda'>{producto.cantidadxlibra}</div>
+                                <div className='celda'>{producto.fechacompra}</div>
+                                <div className='celda'>{producto.fechavencimiento}</div>
+                                <div className='celda'>{producto.precioxlibra}</div>
                             </div>
                         ))}
                     </body>
