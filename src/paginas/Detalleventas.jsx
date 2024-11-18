@@ -1,16 +1,42 @@
 import '../estilos/Detalleventas.css';
 import { useAuth } from '../Auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useState } from 'react';
 
 function Detalleventas() {
     const auth = useAuth();
     const goTo = useNavigate();
-    const [ventana, setVentana] = useState(false);
+    const [ventana1, setVentana1] = useState(false);
+    const [ventana2, setVentana2] = useState(false);
     const [factura, setFactura] = useState(null);
+    const [reservas, setReservas] = useState([]);
+    const [ventanaReservas, setVentanaReservas] = useState(false);
     const [filas, setFilas] = useState([
-        {cantidad: '1', idProducto: '', articulo: '', precio: '', total: ''}]);
+        {cantidad: '1', idProducto: '', articulo: '', precio: '', total: '' }]);
+
+    const [detalleReserva, setDetalleReserva] = useState([{
+        id: '', fecha: '', productos: '' }])
+
+    useEffect(() => {
+
+        const cargarReservas = async () => {
+            // logica para traer las reservas desde el backend
+            try {
+                const respuesta = await fetch('http://localhost:8000/get-reservas');
+
+                if (respuesta.ok) {
+                    const datos = await respuesta.json();
+                    setReservas(datos);
+                } else {
+                    alert('Error al obtener las reservas');
+                }
+            } catch(error) {
+                console.error('Error al realizar la petición:', error);
+            }
+        }
+        cargarReservas();
+    }, []);
 
     const logeado = () => {
         const accesstoken = auth.login();
@@ -101,7 +127,11 @@ function Detalleventas() {
             }
         })
         setFactura({ id: idfactura, fecha: fecha, detalles: detalles });
-        setVentana(true);
+        setVentana1(true);
+    }
+
+    const facturarReservas = () => {
+        setVentana2(true);
     }
 
     async function sendFacturas(e) {
@@ -144,11 +174,13 @@ function Detalleventas() {
                 <h1>DETALLE DE VENTA</h1>
 
                 {logeado().role === 'vendedor' && <div>
-                    <button onClick={deslogeado}>salir</button>
+                    <button onClick={() => setVentanaReservas((prev) => !prev)}>ver reservas ({reservas.length})</button>
                     <button onClick={() => {goTo('/Inventario')}}>inventario</button>
+                    <button onClick={deslogeado}>salir</button>
                 </div>}
 
                 {logeado().role === 'gerente' && <div>
+                    <button onClick={() => setVentanaReservas((prev) => !prev)}>ver reservas ({reservas.length})</button>
                     <button onClick={() => {goTo('/Gerencia')}}>regresar</button>
                 </div>}
                 
@@ -222,7 +254,52 @@ function Detalleventas() {
                 </div>
             </footer>
 
-            {ventana && (
+            {ventanaReservas && (
+                <div className='contenedor-reservas'>
+                    {reservas.map((reserva) => (
+                        <div key={reserva.id} onClick={facturarReservas} className='contenedorXReserva'>
+                            {reserva.fecha}
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {ventana2 && (
+                <div className='modal'>
+                    <div className='contenido-modal'>
+                        <h2>Tiquete de Reserva</h2>
+                        <p><strong>ID:</strong> {factura.id}</p>
+                        <p><strong>Fecha:</strong> {factura.fecha}</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>cantidad</th>
+                                    <th>articulo</th>
+                                    <th>costo unitario</th>
+                                    <th>subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {factura.detalles.map((detalle, i) => (
+                                    <tr key={i}>
+                                        <td>{detalle.cantidad}</td>
+                                        <td>{detalle.articulo}</td>
+                                        <td>{detalle.precio}</td>
+                                        <td>{detalle.subtotal}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <p><strong>Total:</strong> ${calcularTotal()}</p>
+                        <div className='botones-modal'>
+                            <button onClick={() => setVentana1(false)}>Cerrar</button>
+                            <button onClick={sendFacturas}>Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {ventana1 && (
                 <div className='modal'>
                     <div className='contenido-modal'>
                         <h2>Factura</h2>
@@ -250,7 +327,7 @@ function Detalleventas() {
                         </table>
                         <p><strong>Total:</strong> ${calcularTotal()}</p>
                         <div className='botones-modal'>
-                            <button onClick={() => setVentana(false)}>Cerrar</button>
+                            <button onClick={() => setVentana1(false)}>Cerrar</button>
                             <button onClick={sendFacturas}>Confirmar</button>
                         </div>
                     </div>
