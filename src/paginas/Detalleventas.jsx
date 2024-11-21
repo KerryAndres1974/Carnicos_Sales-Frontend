@@ -3,6 +3,7 @@ import { useAuth } from '../Auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import Swal from 'sweetalert2';
 
 function Detalleventas() {
     const auth = useAuth();
@@ -54,10 +55,9 @@ function Detalleventas() {
         }, 0)
     }
 
-    const validarFila = async (e, fila) => {
+    async function validarFila(e, fila) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            
             const idp = e.target.value;
             
             try {
@@ -85,11 +85,20 @@ function Detalleventas() {
                     }
 
                 } else {
-                    alert(`El producto ${idp} no existe en inventario.`);
+                    throw new Error('Error en la solicitud al backend');
                 }
             } catch (error) {
-                console.error('Error al verificar el producto:', error);
-                alert('Error al verificar el producto.');
+                Swal.fire({
+                    icon: 'error',
+                    text: `El producto ${idp} no existe en inventario`,
+                    toast: true,
+                    color: 'red',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    width: '30%',
+                    timerProgressBar: true,
+                });
+                console.error(error);
             }
         }
     }
@@ -116,24 +125,28 @@ function Detalleventas() {
     }
 
     const facturarVentas = () => {
-        const idfactura = uuidv4();
+        const idfactura = uuidv4().split('-')[0];
         const fecha = new Date().toLocaleString();
 
-        const detalles = filas.slice(0, -1).map(fila => {
-            const subtotal = parseFloat(fila.cantidad) * parseFloat(fila.precio);
-            return {
-                ...fila, subtotal: subtotal
-            }
-        })
+        const detalles = filas
+            .map((fila) => {
+                const subtotal = parseFloat(fila.cantidad) * parseFloat(fila.precio);
+                return { ...fila, subtotal: subtotal };
+            })
+            .filter((fila, i) => {
+                if (i === filas.length - 1 && fila.idProducto === '') return false;
+                return true;
+            });
+
         setFactura({ id: idfactura, fecha: fecha, detalles: detalles });
-        setVentana1(true);
+        if (detalles.length !== 0) setVentana1(true);
     }
 
     async function sendFacturas(e) {
         e.preventDefault();
 
         const filasFiltradas = filas.slice(0,-1).map(fila => ({
-            id: fila.idProducto,
+            nombre: fila.articulo,
             cantidad: fila.cantidad
         }));
         
@@ -151,15 +164,52 @@ function Detalleventas() {
             });
 
             if (response.ok) {
-                alert('Se ha finalizado la venta con exito');
-                window.location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    text: 'Venta realizada!',
+                    toast: true,
+                    color: 'green',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    position: 'top',
+                    timerProgressBar: true,
+                }).then(() => window.location.reload());
             } else {
                 throw new Error('Error en la solicitud al backend');
             }
             
         } catch (error) {
-            console.error('Error al enviar los datos al backend:', error);
+            console.error(error);
         }
+    }
+
+    async function chageEstado(e) {
+        e.preventDefault();
+
+        try {
+            const response = await fetch(`http://localhost:8000/edit-reserva/${reservaSeleccionada.idreserva}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    text: 'Entrega realizada!',
+                    toast: true,
+                    color: 'green',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    position: 'top',
+                    timerProgressBar: true,
+                }).then(() => window.location.reload());
+            } else {
+                throw new Error('Error en la solicitud al backend');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        
     }
 
     return (
@@ -231,7 +281,7 @@ function Detalleventas() {
                 </div>
                 <div className='detalles'>
                     <div className='titulos'>
-                        <h2>Carniceria Integrada.</h2>
+                        <h2>Cárnicos Sales</h2>
                         <label>CAJA</label>
                     </div>
                     <div className='descripcion'>
@@ -310,8 +360,8 @@ function Detalleventas() {
                             <tbody>
                                 {reservaSeleccionada.productos.map((producto) => (
                                     <tr key={producto.idproducto}>
-                                        <td>{producto.cantidad}</td>
-                                        <td>{producto.idproducto}</td>
+                                        <td>{producto.cantidad} {producto.cantidad > 1 ? 'Libras' : 'Libra'}</td>
+                                        <td>{producto.nombre}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -319,9 +369,7 @@ function Detalleventas() {
                         <p><strong>Total:</strong> ${reservaSeleccionada.valor}</p>
                         <div className='botones-modal'>
                             <button onClick={() => setVentana2(false)}>Cerrar</button>
-                            <button onClick={() => {
-                                console.log(reservaSeleccionada);
-                            }}>Confirmar</button>
+                            <button onClick={chageEstado}>Confirmar</button>
                         </div>
                     </div>
                 </div>

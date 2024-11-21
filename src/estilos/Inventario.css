@@ -1,10 +1,8 @@
 .principal-inventario {
     display: flex;
-    overflow: hidden;
     flex-direction: column;
     height: 100vh;
     background: #f0f0f0;
-    overflow-y: auto;
 }
 
 .cabezera-inventario {
@@ -21,8 +19,12 @@
     }
     
     div {
+        display: flex;
+        justify-content: flex-end;
         position: absolute;
+        width: 250px;
         right: 30px;
+        gap: 10px;
     }
 }
 
@@ -99,6 +101,7 @@
             text-align: center;
         }
     }
+
     .seccion-tabla .cuerpo-tabla {
         overflow-y: auto;
         width: 100%;
@@ -106,6 +109,12 @@
         flex-direction: column;
         background: #fff;
         justify-content: space-evenly;
+
+        input, select {
+            width: 80%;
+            border-radius: 8px;
+            padding: 4px;
+        }
         
         .elementos {
             display: flex;
@@ -114,7 +123,7 @@
         .celda {
             color: #000;
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 6px;
             width: 15%;
             text-align: center;
         }

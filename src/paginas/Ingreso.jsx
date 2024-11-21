@@ -1,7 +1,8 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider.jsx';
-import { useState } from 'react';
 import logo from '../multimedia/logoEmp.jpg';
+import { useState } from 'react';
+import Swal from 'sweetalert2';
 import '../estilos/Ingreso.css';
 
 function Ingreso() {
@@ -10,6 +11,20 @@ function Ingreso() {
     const [password, setPassword] = useState("");
     const goTo = useNavigate();
     const auth = useAuth();
+
+    const alerta = (texto) => {
+        Swal.fire({
+            icon: 'error',
+            text: texto,
+            toast: true,
+            color: 'red',
+            position: 'top',
+            timer: 3000,
+            width: '29%',
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+    }
 
     async function Ingresar(e) {
         e.preventDefault();
@@ -33,6 +48,15 @@ function Ingreso() {
                     const usuario = JSON.parse(cargaUtilDeco);
 
                     auth.saveUser({ body: { accessToken: "dummyRefreshToken", refreshToken: token, role: usuario.cargo } });
+                    Swal.fire({
+                        icon: 'success',
+                        text: '¡Bienvenido!',
+                        toast: true,
+                        color: 'green',
+                        position: 'top-end',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     if (usuario.cargo === 'gerente'){
                         goTo('/Gerencia');
                     } else {
@@ -40,14 +64,13 @@ function Ingreso() {
                     }
 
                 } else {
-                    alert('Fallo sesion');
+                    alerta('Usuario y/o contraseña incorrectos!');
                 }
             } else {
-                alert('llena todos los campos');
+                alerta('Debes llenar todos los campos');
             }
         } catch (error) {
-            console.error('Error:', error);
-            alert('Error en el inicio de sesión');
+            console.error(error);
         }
     };
 

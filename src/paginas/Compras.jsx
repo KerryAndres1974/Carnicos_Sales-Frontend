@@ -1,81 +1,158 @@
-import { useState } from 'react';
-import '../estilos/Compras.css'
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import '../estilos/Compras.css';
 
 function Compras() {
     const goTo = useNavigate();
+    const [proveedores, setProveedores] = useState([]);
     const [filas, setFilas] = useState([
-        {cantidadxlibra: '1', precioxlibra: '', nombreproducto: '', tipoproducto: '', idproveedor: '', preciocompra: '', boton: true}
-    ])
+        {cantidadxlibra: 1, precioxlibra: '', nombreproducto: '', tipoproducto: '', idproveedor: '', preciocompra: '', boton: false}
+    ]);
+
+    useEffect(() => {
+        setFilas((prevFilas) => {
+            const actualizadas = prevFilas.map((fila) => {
+                const boton = Object.values(fila).every((valor) => valor !== "");
+                if (fila.boton !== boton) {
+                    return { ...fila, boton: boton };
+                }
+                return fila; // No hacer cambios si ya está correcto
+            });
+    
+            // Evitar actualizar el estado si no hay cambios
+            if (JSON.stringify(actualizadas) !== JSON.stringify(prevFilas)) {
+                return actualizadas;
+            }
+            return prevFilas;
+        });
+
+        const cargarProveedores = async () => {
+            // logica para traer los proovedores desde el backend
+            try {
+                const respuesta = await fetch('http://localhost:8000/get-providers');
+
+                if (respuesta.ok) {
+                    const datos = await respuesta.json();
+                    setProveedores(datos.map((proveedor) => proveedor.idproveedor));
+                } else {
+                    alert('Error al obtener los proveedores');
+                }
+            } catch(error) {
+                console.error('Error al realizar la petición:', error);
+            }
+        }
+        cargarProveedores();
+    }, [filas])
 
     const valorCasilla = (e, fila, campo) => {
-        const nuevasFilas = [...filas]
-        nuevasFilas[fila][campo] = e.target.value
-        setFilas(nuevasFilas)
+        const nuevasFilas = [...filas];
+        nuevasFilas[fila][campo] = e.target.value;
+        setFilas(nuevasFilas);
     }
 
     const quitarFila = (i) => {
-        if (filas.length <= 1){
-            const reinicio = [...filas]
-            reinicio[0].idProducto = ''
-            setFilas(reinicio)
+        const viejasFilas = [...filas];
+        if (i === 0) {
+            Object.keys(viejasFilas[i]).forEach((key) => {
+                viejasFilas[i][key] = key === "cantidadxlibra" ? 1 : "";
+            });
         } else {
-            const nuevasFilas = filas.filter((_, fila) => fila !== i)
-            setFilas(nuevasFilas)
+            viejasFilas.splice(i, 1);
         }
+
+        setFilas(viejasFilas);
     }
 
     const agregarFila = (fila) => {
-            
-        const filaActual = filas[filas.length - 1]
+        const filaActual = filas[filas.length - 1];
         
         if (filaActual.tipoproducto && filaActual.idproveedor && filaActual.nombreproducto &&
             filaActual.precioxlibra && filaActual.preciocompra){
-            filaActual.boton = false
                 // logica para guardar la info de una fila y pasar a la siguiente
-                const nuevasFilas = [...filas]
-                setFilas(nuevasFilas)
+                const nuevasFilas = [...filas];
+                setFilas(nuevasFilas);
                 // enfoque a los inputs de la siguiente fila si existe
             if (fila + 1 < filas.length) {
-                document.getElementById(`tipoproducto-${fila + 1}`).focus()
-                document.getElementById(`preciocompra-${fila + 1}`).focus()
-                document.getElementById(`nombreproducto-${fila + 1}`).focus()
-                document.getElementById(`precioxlibra-${fila + 1}`).focus()
-                document.getElementById(`idproveedor-${fila + 1}`).focus()
+                document.getElementById(`nombreproducto-${fila + 1}`).focus();
+                document.getElementById(`tipoproducto-${fila + 1}`).focus();
+                document.getElementById(`preciocompra-${fila + 1}`).focus();
+                document.getElementById(`precioxlibra-${fila + 1}`).focus();
+                document.getElementById(`idproveedor-${fila + 1}`).focus();
             } else {
                 // añadir nueva fila
-                setFilas([...nuevasFilas, { cantidadxlibra: '1', precioxlibra: '', nombreproducto: '', tipoproducto: '', idproveedor: '', preciocompra: '', boton: true}])
+                setFilas([...nuevasFilas, { cantidadxlibra: 1, precioxlibra: '', nombreproducto: '', tipoproducto: '', idproveedor: '', preciocompra: '', boton: false}]);
                 setTimeout(() => {
-                    document.getElementById(`tipoproducto-${fila + 1}`).focus()
-                    document.getElementById(`preciocompra-${fila + 1}`).focus()
-                    document.getElementById(`nombreproducto-${fila + 1}`).focus()
-                    document.getElementById(`precioxlibra-${fila + 1}`).focus()
-                    document.getElementById(`idproveedor-${fila + 1}`).focus()
-                }, 0)
+                    document.getElementById(`nombreproducto-${fila + 1}`).focus();
+                    document.getElementById(`tipoproducto-${fila + 1}`).focus();
+                    document.getElementById(`preciocompra-${fila + 1}`).focus();
+                    document.getElementById(`precioxlibra-${fila + 1}`).focus();
+                    document.getElementById(`idproveedor-${fila + 1}`).focus();
+                }, 0);
             }
-
-        } else alert('Debes llenar todas las casillas') 
+        }
     }
 
     async function enviarDatos(e) {
-        e.preventDefault()
-        // funcion para enviar los datos de las compras al backend        
-        try {
-            const response = await fetch('http://localhost:8000/new-product', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(filas)
+        e.preventDefault();
+
+        // Filtro para traer todas las filas completas
+        const filtro = filas
+            .filter((fila, i) => {
+                const camposVacios = Object.entries(fila)
+                    .filter(([_, valor]) => valor === '') // Encontrar campos vacíos
+                    .map(([clave]) => clave); // Obtener solo el nombre del campo
+                    
+                if (camposVacios.length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        text: `En la fila ${i + 1} faltan los campos: ${camposVacios.join(',\n')}`,
+                        toast: true,
+                        color: 'red',
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true
+                    });
+                    return false;
+                }
+
+                return true;
             });
-    
-            if (!response.ok) {
-                throw new Error('Error en la solicitud al backend');
+           
+        // Faltan campos por llenar
+        const datosCompletos = filas.every(fila => 
+            Object.values(fila).every(valor => valor !== '')
+        );
+        
+        // funcion para enviar los datos de las compras al backend
+        if (datosCompletos) {
+            try {
+                const response = await fetch('http://localhost:8000/new-product', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(filtro)
+                });
+        
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Producto(s) añadido(s) con exito',
+                        toast: true,
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true,
+                        color: 'green'
+                    }).then(() => {
+                        // Reiniciar las filas si la solicitud fue exitosa
+                        setFilas([{cantidadxlibra: 1, precioxlibra: '', nombreproducto: '', tipoproducto: '', idproveedor: '', preciocompra: ''}]);
+                    })
+                } else {
+                    throw new Error('Error en la solicitud al backend');
+                }
+        
+            } catch (error) {
+                console.error(error);
             }
-    
-            // Reiniciar las filas si la solicitud fue exitosa
-            setFilas([{cantidadxlibra: '1', precioxlibra: '', nombreproducto: '', tipoproducto: '', idproveedor: '', preciocompra: ''}]);
-    
-        } catch (error) {
-            console.error('Error al enviar los datos al backend:', error);
         }
     }
 
@@ -134,12 +211,19 @@ function Compras() {
                                         />
                                     </td>
                                     <td>
-                                        <input 
-                                            type='text'
-                                            id={`idproveedor-${i}`}
+                                        <select 
+                                            style={{ width: '90%', borderRadius: '8px', padding: '2px' }}
                                             value={fila.idproveedor}
+                                            id={`idproveedor-${i}`}
                                             onChange={(e) => valorCasilla(e, i, 'idproveedor')}
-                                        />
+                                        >
+                                            <option value='' disabled selected={false}>Proveedores</option>
+                                            {proveedores.map((proveedor, i) => (
+                                                <option key={i} value={proveedor}>
+                                                    {proveedor}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </td>
                                     <td>
                                         <input 
