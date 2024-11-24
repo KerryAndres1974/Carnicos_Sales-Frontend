@@ -11,13 +11,13 @@ function App() {
     const [tipo, setTipo] = useState('');
     const [nombre, setNombre] = useState('');
     // Resultados
-    const [cantidades, setCantidades] = useState('');
+    const [seleccionados, setSeleccionados] = useState([]);
+    const [cantidades, setCantidades] = useState({});
     const [reservados, setReservados] = useState({});
     const [productos, setProductos] = useState([]);
     const [allTipos, setAllTipos] = useState([]);
-    const [seleccionados, setSeleccionados] = useState([]);
     // Acciones
-    const [ventana, setVentana] = useState(false);
+    const [modal, setModal] = useState(false);
     const [factura, setFactura] = useState(null);
     const [domicilio, setDomicilio] = useState(false);
     const [realizado, setRealizado] = useState(false);
@@ -27,14 +27,7 @@ function App() {
     useEffect(() => {
         const cargarProductos = async () => {
             try {
-                const respuesta = await fetch('http://localhost:8000/get-products', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nombreproducto: nombre,
-                        tipoproducto: tipo
-                    })
-                });
+                const respuesta = await fetch('http://localhost:8000/productos');
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json();
@@ -52,7 +45,7 @@ function App() {
             }
         }
         cargarProductos();
-    }, [tipo, nombre, allTipos]);
+    }, [allTipos]);
 
     async function sendReservas(e) {
         e.preventDefault();
@@ -77,7 +70,7 @@ function App() {
         const datos = JSON.stringify({ reserva: reservados, cliente: infoUser });
         
         try {
-            const response = await fetch('http://localhost:8000/new-reserva', {
+            const response = await fetch('http://localhost:8000/reservas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: datos
@@ -161,26 +154,33 @@ function App() {
             
             setReservados({ id: idfactura, fecha: fecha, producto: reservadosData, valor: total });
             setFactura({ id: idfactura, fecha: fecha, detalles: detalles });
-            setVentana(true);
+            setModal(true);
         }
     }
 
     const añadir = (idproducto) => {
-        setSeleccionados((prevSeleccion) => {
-            if (prevSeleccion.includes(idproducto)) {
-                return prevSeleccion.filter((id) => id !== idproducto);
+        setSeleccionados((prev) => {
+            if (prev.includes(idproducto)) {
+                return prev.filter((id) => id !== idproducto);
             } else {
-                return [...prevSeleccion, idproducto];
+                return [...prev, idproducto];
             }
         });
     };
+
+    const finalizarReserva = () => {
+        setModal(false);
+        setRealizado(false);
+
+        if (realizado) window.location.reload();
+    }
 
     return (
         <div className='principal'>
 
             <header className='cabezera-principal'>
                 <h1>Cárnicos Sales</h1>
-                <button onClick={() => {goTo('/Ingreso')}}>Ingreso Empleados</button>
+                <button onClick={() => goTo('/Ingreso')}>Ingreso Empleados</button>
             </header>
 
             <main className='contenido-principal'>
@@ -188,16 +188,15 @@ function App() {
                 <section className='seccion-buscadores'>
                     <input 
                         type='text'
+                        value={nombre}
+                        className='buscadorN'
                         placeholder='Que deseas?'
-                        className='buscador'
                         onChange={(e) => setNombre(e.target.value)} />
 
                     <select 
                         value={tipo}
-                        className='select' 
-                        onChange={(e) => {e.target.value === 'Tipo' ? setTipo('') : setTipo(e.target.value)}}
-                        title='Tipo' 
-                    >
+                        className='buscadorT' 
+                        onChange={(e) => {e.target.value === 'Tipo' ? setTipo('') : setTipo(e.target.value)}} >
                         <option>Tipo</option>
                         {allTipos.map((tipo, i) => (
                             <option key={i} value={tipo}>
@@ -208,32 +207,40 @@ function App() {
                 </section>
                 
                 <section className='seccion-productos'>
-                    {productos.map((producto) => (
-                        <div className='producto' key={producto.idproducto}>
-                            <div>
-                                <p><strong>Tipo:</strong> {producto.tipoproducto}</p>
-                                <p><strong>Nombre:</strong> {producto.nombreproducto}</p>
-                                <p><strong>Precio por Libra:</strong> {producto.precioxlibra}</p>
-                                <p><strong>Libras Restantes:</strong> {producto.cantidadxlibra}</p>
-                            </div>
+                    {productos
+                        .filter((producto) => {
+                            const selectNombre = nombre === '' || producto.nombreproducto.toLowerCase().includes(nombre.toLowerCase());
+                            const selectTipo = tipo === '' || producto.tipoproducto === tipo;
+                            return selectNombre && selectTipo;
+                        })
+                        .map((producto) => (
+                            <div className='producto' key={producto.idproducto}>
+                                <div>
+                                    <p><strong>Tipo:</strong> {producto.tipoproducto}</p>
+                                    <p><strong>Nombre:</strong> {producto.nombreproducto}</p>
+                                    <p><strong>Precio por Libra:</strong> {producto.precioxlibra}</p>
+                                    <p><strong>Libras Restantes:</strong> {producto.cantidadxlibra}</p>
+                                </div>
 
-                            <div className='editables'>
-                                <input 
-                                    disabled={!seleccionados.includes(producto.idproducto)}
-                                    type='number' placeholder='Libras' 
-                                    className='libras'
-                                    value={cantidades[producto.idproducto] || ''}
-                                    onChange={(e) => setCantidades({ ...cantidades, [producto.idproducto]: e.target.value })}
-                                    min={1} />
+                                <div className='editables'>
+                                    <input 
+                                        min={1}
+                                        type='number'
+                                        className='libras'
+                                        placeholder='Libras' 
+                                        value={cantidades[producto.idproducto] || ''}
+                                        disabled={!seleccionados.includes(producto.idproducto)}
+                                        onChange={(e) => setCantidades({ ...cantidades, [producto.idproducto]: e.target.value })} />
 
-                                <button 
-                                    className={`boton ${seleccionados.includes(producto.idproducto) ? "seleccionado" : ""}`}
-                                    onClick={() => {añadir(producto.idproducto)}} >
-                                    {seleccionados.includes(producto.idproducto) ? "Desagregar" : "Agregar"}
-                                </button>
+                                    <button 
+                                        className={`boton ${seleccionados.includes(producto.idproducto) ? "seleccionado" : ""}`}
+                                        onClick={() => {añadir(producto.idproducto)}} >
+                                        {seleccionados.includes(producto.idproducto) ? "Desagregar" : "Agregar"}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    }
                 </section>
                 
             </main>
@@ -246,7 +253,7 @@ function App() {
                 </button>
             </footer>
 
-            {ventana && <div className='modal'>
+            {modal && <div className='modal'>
                 <div className='contenido-modal'>
                     <h2>Tiquete de Reserva</h2>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -260,14 +267,14 @@ function App() {
 
                         <input 
                             type='text' 
-                            placeholder='Correo Electronico' 
                             value={infoUser.cor}
+                            placeholder='Correo Electronico' 
                             onChange={(e) => setInfoUser((prev) => ({ ...prev, cor: e.target.value }))} />
                         
                         <input 
                             type='text' 
-                            placeholder='Nombre del Cliente' 
                             value={infoUser.nom}
+                            placeholder='Nombre del Cliente' 
                             onChange={(e) => setInfoUser((prev) => ({ ...prev, nom: e.target.value }))} />
 
                         {!domicilio && <button onClick={() => 
@@ -291,14 +298,14 @@ function App() {
                     {domicilio && <div className='campo'>
                         <input 
                             type='text' 
-                            placeholder='Direccion' 
                             value={infoUser.dir} 
+                            placeholder='Direccion' 
                             onChange={(e) => setInfoUser((prev) => ({ ...prev, dir: e.target.value }))} />
 
                         <input 
                             type='text' 
-                            placeholder='Numero Telefono' 
                             value={infoUser.tel} 
+                            placeholder='Numero Telefono' 
                             onChange={(e) => setInfoUser((prev) => ({ ...prev, tel: e.target.value }))} />
                     </div>}
 
@@ -326,7 +333,7 @@ function App() {
                     <p><strong>Total:</strong> ${calcularTotal()}</p>
 
                     <div className='botones-modal'>
-                        <button onClick={() => {setVentana(false); setRealizado(false)}}>
+                        <button onClick={() => finalizarReserva()}>
                             {realizado ? 'Cerrar' : 'Cancelar'}
                         </button>
                         <button onClick={sendReservas} disabled={realizado === true}>Confirmar Reserva</button>

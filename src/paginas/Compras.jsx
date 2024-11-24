@@ -30,7 +30,7 @@ function Compras() {
         const cargarProveedores = async () => {
             // logica para traer los proovedores desde el backend
             try {
-                const respuesta = await fetch('http://localhost:8000/get-providers');
+                const respuesta = await fetch('http://localhost:8000/proveedores');
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json();
@@ -127,7 +127,7 @@ function Compras() {
         // funcion para enviar los datos de las compras al backend
         if (datosCompletos) {
             try {
-                const response = await fetch('http://localhost:8000/new-product', {
+                const response = await fetch('http://localhost:8000/productos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(filtro)
@@ -212,14 +212,13 @@ function Compras() {
                                     </td>
                                     <td>
                                         <select 
-                                            style={{ width: '90%', borderRadius: '8px', padding: '2px' }}
-                                            value={fila.idproveedor}
                                             id={`idproveedor-${i}`}
-                                            onChange={(e) => valorCasilla(e, i, 'idproveedor')}
-                                        >
+                                            value={fila.idproveedor}
+                                            style={{ width: '90%', borderRadius: '8px', padding: '2px' }}
+                                            onChange={(e) => valorCasilla(e, i, 'idproveedor')} >
                                             <option value='' disabled selected={false}>Proveedores</option>
                                             {proveedores.map((proveedor, i) => (
-                                                <option key={i} value={proveedor}>
+                                                <option key={i} value={proveedor} title={proveedor.tipoproducto}>
                                                     {proveedor}
                                                 </option>
                                             ))}

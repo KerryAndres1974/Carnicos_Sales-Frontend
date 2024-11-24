@@ -39,7 +39,7 @@
         display: flex;
         justify-content: space-evenly;
 
-        .buscador {
+        .buscadorN {
             width: 70%;
             border: 2px solid black;
             padding: 12px;
@@ -51,7 +51,7 @@
             }
         }
 
-        .select {
+        .buscadorT {
             width: 20%;
             height: 100%;
             border: 2px solid black;

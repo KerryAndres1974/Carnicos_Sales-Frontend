@@ -23,7 +23,7 @@ function Detalleventas() {
         const cargarReservas = async () => {
             // logica para traer las reservas desde el backend
             try {
-                const respuesta = await fetch('http://localhost:8000/get-reservas');
+                const respuesta = await fetch('http://localhost:8000/reservas');
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json();
@@ -61,7 +61,7 @@ function Detalleventas() {
             const idp = e.target.value;
             
             try {
-                const response = await fetch(`http://localhost:8000/get-product/${idp}`);
+                const response = await fetch(`http://localhost:8000/productos/${idp}`);
                 const data = await response.json();
     
                 if (data) {
@@ -151,7 +151,7 @@ function Detalleventas() {
         }));
         
         try {
-            const response = await fetch('http://localhost:8000/new-venta', {
+            const response = await fetch('http://localhost:8000/ventas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -187,7 +187,7 @@ function Detalleventas() {
         e.preventDefault();
 
         try {
-            const response = await fetch(`http://localhost:8000/edit-reserva/${reservaSeleccionada.idreserva}`, {
+            const response = await fetch(`http://localhost:8000/reserva/${reservaSeleccionada.idreserva}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
             });

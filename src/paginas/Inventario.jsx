@@ -14,12 +14,11 @@ function Inventario() {
     const [nombre, setNombre] = useState('');
     // Resultados
     const [productos, setProductos] = useState([]);
-    const [allTipos, setAllTipos] = useState([]);
     const [allProve, setAllProve] = useState([]);
+    const [allTipos, setAllTipos] = useState([]);
     // Edicion
     const [editar, setEditar] = useState(false);
-    const [item, setItem] = useState(
-        { tipo: '', nombre: '', idprovee: '', preciol: '', cantidad: '', fechac: '', fechav: '', precioc: '', activo: true });
+    const [item, setItem] = useState({});
 
     const logeado = () => {
         const access = auth.login();
@@ -34,14 +33,7 @@ function Inventario() {
     useEffect(() => {
         const cargarProductos = async () => {
             try {
-                const respuesta = await fetch('http://localhost:8000/get-products', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nombreproducto: nombre,
-                        tipoproducto: tipo
-                    })
-                });
+                const respuesta = await fetch('http://localhost:8000/productos');
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json();
@@ -61,7 +53,7 @@ function Inventario() {
             }
         }
         cargarProductos()
-    }, [tipo, nombre, allTipos])
+    }, [allTipos])
 
     async function editProducto(id, accion) {
         
@@ -81,7 +73,7 @@ function Inventario() {
         
         try {
 
-            const updatedItem = await new Promise((resolve) => {
+            const activoItem = await new Promise((resolve) => {
                 setItem((prevItem) => {
                     const newItem = accion ? { ...prevItem, activo: false } : prevItem;
                     resolve(newItem);
@@ -89,18 +81,23 @@ function Inventario() {
                 });
             });
 
-            const response = await fetch(`http://localhost:8000/edit-product/${id}`, {
+            const filtroItem = Object.fromEntries(
+                Object.entries(activoItem).filter(([_, valor]) => valor !== '')
+            );
+
+            const response = await fetch(`http://localhost:8000/productos/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedItem)
+                body: JSON.stringify(filtroItem)
             });
 
             if (response.ok) {
                 await Swal.fire({
                     icon: 'success',
-                    text: 'Producto editado con exito!',
+                    text: accion ? 'Producto eliminado del inventario' : 'Producto editado con exito!',
                     toast: true,
-                    color: 'green',
+                    width: accion ? '30%': '', 
+                    color: accion ? 'red' : 'green',
                     showConfirmButton: false,
                     timer: 4000,
                     position: 'top',
@@ -166,7 +163,13 @@ function Inventario() {
                     </div>
 
                     <div className='cuerpo-tabla'>
-                        {productos.map((producto) => (
+                        {productos
+                            .filter((producto) => {
+                                const selectNombre = nombre === '' || producto.nombreproducto.toLowerCase().includes(nombre.toLowerCase());
+                                const selectTipo = tipo === '' || producto.tipoproducto === tipo;
+                                return selectNombre && selectTipo;
+                            })
+                            .map((producto) => (
                             <div className='elementos' key={producto.idproducto}>
                                 {editar !== producto.idproducto ?
                                 <>
@@ -186,7 +189,7 @@ function Inventario() {
                                     <div className='celda'>
                                         <select 
                                             defaultValue="Proveedor"
-                                            onChange={(e) => setItem({ ...item, idprovee: e.target.value })}>
+                                            onChange={(e) => setItem({ ...item, idproveedor: e.target.value })}>
                                             {allProve.map((prov, i) => (
                                                 <option key={i} value={prov}>
                                                     {prov}
@@ -198,37 +201,37 @@ function Inventario() {
                                         type='text' 
                                         value={item.tipo}
                                         placeholder={producto.tipoproducto}
-                                        onChange={(e) => setItem({ ...item, tipo: e.target.value })}/></div>
+                                        onChange={(e) => setItem({ ...item, tipoproducto: e.target.value })}/></div>
                                     <div className='celda'><input 
                                         type='text'
                                         value={item.nombre}
                                         placeholder={producto.nombreproducto}
-                                        onChange={(e) => setItem({ ...item, nombre: e.target.value })}/></div>
+                                        onChange={(e) => setItem({ ...item, nombreproducto: e.target.value })}/></div>
                                     <div className='celda'><input 
                                         type='number'
                                         value={item.preciol}
                                         placeholder={producto.precioxlibra}
-                                        onChange={(e) => setItem({ ...item, preciol: e.target.value })}/></div>
+                                        onChange={(e) => setItem({ ...item, precioxlibra: e.target.value })}/></div>
                                     <div className='celda'><input 
                                         type='number'
                                         value={item.cantidad}
                                         placeholder={producto.cantidadxlibra}
-                                        onChange={(e) => setItem({ ...item, cantidad: e.target.value })}/></div>
+                                        onChange={(e) => setItem({ ...item, cantidadxlibra: e.target.value })}/></div>
                                     <div className='celda'><input 
                                         type='date'
                                         value={item.fechac}
                                         placeholder={producto.fechacompra}
-                                        onChange={(e) => setItem({ ...item, fechac: e.target.value })}/></div>
+                                        onChange={(e) => setItem({ ...item, fechacompra: e.target.value })}/></div>
                                     <div className='celda'><input 
                                         type='date'
                                         value={item.fechav}
                                         placeholder={producto.fechavencimiento}
-                                        onChange={(e) => setItem({ ...item, fechav: e.target.value })}/></div>
+                                        onChange={(e) => setItem({ ...item, fechavencimiento: e.target.value })}/></div>
                                     <div className='celda'><input 
                                         type='text'
                                         value={item.precioc}
                                         placeholder={producto.preciocompra}
-                                        onChange={(e) => setItem({ ...item, precioc: e.target.value })}/></div>
+                                        onChange={(e) => setItem({ ...item, preciocompra: e.target.value })}/></div>
                                 </>}
 
                                 <div className='celda' style={{ display: 'flex', justifyContent: 'space-evenly' }}>
