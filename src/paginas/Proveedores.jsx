@@ -1,6 +1,8 @@
 import '../estilos/Proveedores.css';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
+import { FaEdit, FaTrash, FaCheck } from 'react-icons/fa';
 
 function Proveedores() {
     const goTo = useNavigate();
@@ -9,6 +11,8 @@ function Proveedores() {
     const [texto, setTexto] = useState('Añadir Proveedor');
     const [filas, setFilas] = useState([
         {Nit: '', nombre: '', telefono: '', direccion: '', tipo: ''}]);
+    const [editar, setEditar] = useState(false);
+    const [item, setItem] = useState({});
     
     useEffect(() => {
         
@@ -39,11 +43,8 @@ function Proveedores() {
 
             if (filaActual.Nit && filaActual.nombre && filaActual.telefono &&
                 filaActual.direccion && filaActual.tipo) {
-                
-                const nuevasFilas = [...filas, { Nit: '', nombre: '', telefono: '', direccion: '', tipo: '' }];
-                setFilas(nuevasFilas);
 
-                let datosJSON = JSON.stringify({
+                const datosJSON = JSON.stringify({
                     nit: filaActual.Nit,
                     nombre: filaActual.nombre,
                     telefono: filaActual.telefono,
@@ -59,7 +60,16 @@ function Proveedores() {
                     });
 
                     if (response.ok) {
-                        alert('Se ha agregado el nuevo proveedor con exito');
+                        Swal.fire({
+                            icon: 'success',
+                            text: 'Se agregó al proveedor con exito',
+                            toast: true,
+                            showConfirmButton: false,
+                            timer: 4000,
+                            width: '30%',
+                            timerProgressBar: true,
+                            color: 'green'
+                        }).then(() => window.location.reload());
                     } else {
                         throw new Error('Error en la solicitud al backend');
                     }
@@ -68,11 +78,22 @@ function Proveedores() {
                     console.error(err);
                 }
 
-                setTexto('Añadir Proveedor')
+                setTexto('Añadir Proveedor');
 
-            } else alert('llena todos los campos')
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'No se ha añadido ningun elemento',
+                    toast: true,
+                    color: 'red',
+                    width: '30%',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+            }
 
-        } else setTexto('Guardar')
+        } else setTexto('Guardar');
     } 
 
     const handleInputChange = (e, index, campo) => {
@@ -80,6 +101,10 @@ function Proveedores() {
         nuevasFilas[index][campo] = e.target.value;
         setFilas(nuevasFilas);
     };
+
+    async function editProveedor(id, accion) {
+        
+    }
 
     return(
         <div className='principal-proveedores'>
@@ -96,6 +121,7 @@ function Proveedores() {
                             <th>Telefono</th>
                             <th>Direccion</th>
                             <th>Tipo Producto</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody className='elementos'>
@@ -103,10 +129,31 @@ function Proveedores() {
                             <tr key={proveedor.idproveedor}>
 
                                 <td>{proveedor.idproveedor}</td>
-                                <td>{proveedor.nombreproveedor}</td>
-                                <td>{proveedor.numerotelefono}</td>
+                                <td>{proveedor.nombre}</td>
+                                <td>{proveedor.telefono}</td>
                                 <td>{proveedor.direccion}</td>
                                 <td>{proveedor.tipoproducto}</td>
+                                <td style={{ display: 'flex', justifyContent: 'space-around' }}>
+
+                                    {editar === proveedor.idproveedor && <FaTrash 
+                                        title='Eliminar'
+                                        style={{ color: 'red', cursor: 'pointer' }}
+                                        onClick={() => {
+                                            setItem((prevItem) => ({ ...prevItem, activo: false }));
+                                            editProveedor(proveedor.idproveedor, true);
+                                        }}/>}
+
+                                    <FaEdit
+                                        title='Editar'
+                                        style={{ color: 'blue', cursor: 'pointer' }}
+                                        onClick={() => setEditar((prev) => (prev === proveedor.idproveedor ? null : proveedor.idproveedor))} />
+
+                                    {editar === proveedor.idproveedor && <FaCheck 
+                                        title='Confirmar'
+                                        style={{ color: 'green', cursor: 'pointer' }}
+                                        onClick={() => editProveedor(proveedor.idproveedor, false)}/>}
+
+                                </td>
                                 
                             </tr>
                             

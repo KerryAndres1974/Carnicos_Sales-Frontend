@@ -34,7 +34,7 @@ function Compras() {
 
                 if (respuesta.ok) {
                     const datos = await respuesta.json();
-                    setProveedores(datos.map((proveedor) => proveedor.idproveedor));
+                    setProveedores(datos);
                 } else {
                     alert('Error al obtener los proveedores');
                 }
@@ -106,11 +106,13 @@ function Compras() {
                 if (camposVacios.length > 0) {
                     Swal.fire({
                         icon: 'error',
-                        text: `En la fila ${i + 1} faltan los campos: ${camposVacios.join(',\n')}`,
+                        text: i !== 0 ? `En la fila ${i + 1} faltan los campos: ${camposVacios.join(',\n')}`
+                            : 'No se ha añadido ningun elemento',
                         toast: true,
                         color: 'red',
                         showConfirmButton: false,
                         timer: 4000,
+                        width: '30%',
                         timerProgressBar: true
                     });
                     return false;
@@ -140,6 +142,7 @@ function Compras() {
                         toast: true,
                         showConfirmButton: false,
                         timer: 4000,
+                        width: '30%',
                         timerProgressBar: true,
                         color: 'green'
                     }).then(() => {
@@ -215,11 +218,12 @@ function Compras() {
                                             id={`idproveedor-${i}`}
                                             value={fila.idproveedor}
                                             style={{ width: '90%', borderRadius: '8px', padding: '2px' }}
-                                            onChange={(e) => valorCasilla(e, i, 'idproveedor')} >
-                                            <option value='' disabled selected={false}>Proveedores</option>
+                                            onChange={(e) => valorCasilla(e, i, 'idproveedor')}
+                                        >
+                                            <option disabled >Proveedores</option>
                                             {proveedores.map((proveedor, i) => (
-                                                <option key={i} value={proveedor} title={proveedor.tipoproducto}>
-                                                    {proveedor}
+                                                <option key={i} title={proveedor.tipoproducto}>
+                                                    {proveedor.idproveedor}
                                                 </option>
                                             ))}
                                         </select>

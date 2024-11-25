@@ -187,7 +187,7 @@ function Detalleventas() {
         e.preventDefault();
 
         try {
-            const response = await fetch(`http://localhost:8000/reserva/${reservaSeleccionada.idreserva}`, {
+            const response = await fetch(`http://localhost:8000/reservas/${reservaSeleccionada.idreserva}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
             });
