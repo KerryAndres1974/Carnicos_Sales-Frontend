@@ -50,28 +50,6 @@
                 border: 2px solid #9b2e2e;
             }
         }
-
-        .buscadorT {
-            width: 20%;
-            height: 100%;
-            border: 2px solid black;
-            border-radius: 8px;
-            font-size: 18px;
-            padding: 0 12px;
-            appearance: none;
-            -moz-appearance: none;
-            -webkit-appearance: none;
-            background: url(../public/caret-down.svg) no-repeat;
-            background-position: calc(100% - 10px) center;
-            &:focus{
-                border: 2px solid #9b2e2e;
-                outline: none;
-                color: #9b2e2e;
-            }
-            option:first-child {
-                background: #ccc;
-            }
-        }
     }
 
     .seccion-productos {
@@ -101,7 +79,7 @@
             .boton {
                 padding: 8px 16px;
                 border: none;
-                height: 30%;
+                max-height: 30%;
                 width: 40%;
                 border-radius: 4px;
                 cursor: pointer;

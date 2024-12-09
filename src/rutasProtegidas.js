@@ -1,14 +1,15 @@
 import { Outlet, Navigate } from "react-router-dom";
-import { useAuth } from "./Auth/AuthProvider.jsx";
+import { useAuth } from "./auth/AuthProvider.jsx";
 
 function RutaProtegida({ allowedRoles }) {
     const auth = useAuth();
+    const { accessToken, cargo } = auth.login();
 
-    if (!auth.login().accessToken) {
+    if (!accessToken) {
         return <Navigate to="/" />;
     }
 
-    if (allowedRoles && !allowedRoles.includes(auth.login().role)) {
+    if (allowedRoles && !allowedRoles.includes(cargo)) {
         return <Navigate to="/Desautorizado" />;
     }
 

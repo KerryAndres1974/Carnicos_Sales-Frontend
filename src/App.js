@@ -136,18 +136,20 @@ function App() {
                 .filter((producto) => seleccionados.includes(producto.idproducto))
                 .map((producto) => {
                     const cantidad = cantidades[producto.idproducto] || 0;
+                    const descuento = producto.precioxlibra - (producto.precioxlibra * 0.5);
 
                     total += producto.precioxlibra * cantidad;
                     return {
                         cantidad: cantidad, 
                         articulo: producto.nombreproducto,
-                        costoSinIVA: producto.precioxlibra,
-                        subtotal: producto.precioxlibra * cantidad,
+                        costoSinIVA: producto.promocion ? descuento : producto.precioxlibra,
+                        subtotal: producto.promocion ? descuento * cantidad : producto.precioxlibra * cantidad,
                         idp: producto.idproducto
                     };
                 });
                 
             const reservadosData = detalles.map((detalle) => ({
+                id: detalle.idp,
                 nombre: detalle.articulo,
                 cantidad: detalle.cantidad
             }));
@@ -196,6 +198,7 @@ function App() {
                     <select 
                         value={tipo}
                         className='buscadorT' 
+                        style={{ height: '100%' }}
                         onChange={(e) => {e.target.value === 'Tipo' ? setTipo('') : setTipo(e.target.value)}} >
                         <option>Tipo</option>
                         {allTipos.map((tipo, i) => (
@@ -216,9 +219,15 @@ function App() {
                         .map((producto) => (
                             <div className='producto' key={producto.idproducto}>
                                 <div>
-                                    <p><strong>Tipo:</strong> {producto.tipoproducto}</p>
+                                    {producto.promocion ? 
+                                        <p style={{ color: 'green' }}><strong>GRAN DESCUENTO</strong></p> : null }
                                     <p><strong>Nombre:</strong> {producto.nombreproducto}</p>
-                                    <p><strong>Precio por Libra:</strong> {producto.precioxlibra}</p>
+                                    <p><strong>Tipo:</strong> {producto.tipoproducto}</p>
+                                    {producto.promocion ? 
+                                        <p><strong>Precio por Libra (Antes):</strong> {producto.precioxlibra}</p> : 
+                                        <p><strong>Precio por Libra:</strong> {producto.precioxlibra}</p>}
+                                    {producto.promocion ? 
+                                        <p><strong>Precio por Libra (Ahora):</strong> {producto.precioxlibra - (producto.precioxlibra * 0.5)}</p> : null }
                                     <p><strong>Libras Restantes:</strong> {producto.cantidadxlibra}</p>
                                 </div>
 

@@ -39,3 +39,24 @@ input {
   background-color: darkgrey; /* O el color que desees */
   border-radius: 10px;
 }
+
+.buscadorT {
+  width: 20%;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-size: 18px;
+  padding: 0 12px;
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background: url(../public/caret-down.svg) no-repeat;
+  background-position: calc(100% - 10px) center;
+  &:focus{
+      border: 2px solid #9b2e2e;
+      outline: none;
+      color: #9b2e2e;
+  }
+  option:first-child {
+      background: #ccc;
+  }
+}

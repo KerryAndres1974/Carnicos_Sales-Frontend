@@ -1,6 +1,6 @@
 import '../estilos/Gerencia.css'
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../Auth/AuthProvider'
+import { useAuth } from '../auth/AuthProvider'
 
 function Gerencia() {
     const auth = useAuth()
@@ -14,15 +14,15 @@ function Gerencia() {
     return(
         <div className='principal-gerencia'>
             <section>
-                <button onClick={() => {goTo('/Inventario')}}>Inventario</button>
-                <button onClick={() => {goTo('/Informe')}}>Informe</button>
-                <button onClick={() => {goTo('/Detalleventas')}}>Ventas</button>
+                <button className='botonG' onClick={() => {goTo('/Inventario')}}>Inventario</button>
+                <button className='botonG' onClick={() => {goTo('/Informe')}}>Informe</button>
+                <button className='botonG' onClick={() => {goTo('/Detalleventas')}}>Ventas</button>
             </section>
                 
             <section>
-                <button onClick={() => {goTo('/Compras')}}>Compras</button>
-                <button onClick={() => {goTo('/Proveedores')}}>Proveedores</button>
-                <button onClick={deslogeado}>Salir</button>
+                <button className='botonG' onClick={() => {goTo('/Compras')}}>Compras</button>
+                <button className='botonG' onClick={() => {goTo('/Proveedores')}}>Proveedores</button>
+                <button className='botonG' onClick={deslogeado}>Salir</button>
             </section>
         </div>
     );

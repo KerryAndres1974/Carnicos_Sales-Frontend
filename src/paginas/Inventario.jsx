@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import '../estilos/Inventario.css'
-import { useAuth } from '../Auth/AuthProvider';
+import { useAuth } from '../auth/AuthProvider';
 import { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaCheck } from 'react-icons/fa';
 import Swal from 'sweetalert2';
@@ -19,11 +19,7 @@ function Inventario() {
     // Edicion
     const [editar, setEditar] = useState(false);
     const [item, setItem] = useState({});
-
-    const logeado = () => {
-        const access = auth.login();
-        return access;
-    }
+    const [empleado, setEmpleado] = useState([]);
 
     const deslogeado = () => {
         window.location.reload();
@@ -52,6 +48,26 @@ function Inventario() {
                 console.error('Error al realizar la petición:', error);
             }
         }
+
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                // Divide el token en sus partes: encabezado, carga útil y firma
+                const [, cargaUtilBase64, ] = token.split('.');
+
+                // Decodifica la carga útil (segunda parte del token)
+                const cargaUtilDecodificada = atob(cargaUtilBase64);
+
+                // Convierte la carga útil decodificada a un objeto JavaScript
+                const usuario = JSON.parse(cargaUtilDecodificada);
+
+                // Puedes establecer el usuario en el estado
+                setEmpleado(usuario);
+            } catch (error) {
+                console.error('Error al decodificar el token:', error);
+            }
+        }
+
         cargarProductos()
     }, [allTipos])
 
@@ -116,11 +132,11 @@ function Inventario() {
 
             <header className='cabezera-inventario'>
                 <h1>INVENTARIO</h1>
-                {logeado().role === 'vendedor' && <div>
+                {empleado.cargo === 'vendedor' && <div>
                     <button onClick={() => {goTo('/Detalleventas')}}>ventas</button>
                     <button onClick={deslogeado}>salir</button>
                 </div>}
-                {logeado().role === 'gerente' && <div>
+                {empleado.cargo === 'gerente' && <div>
                     <button onClick={() => {goTo('/Gerencia')}}>regresar</button>
                 </div>}
             </header>
@@ -136,7 +152,8 @@ function Inventario() {
 
                     <select 
                         defaultValue="Tipo"
-                        className='select' 
+                        className='buscadorT' 
+                        style={{ height: '80%' }}
                         onChange={(e) => {e.target.value === 'Tipo' ? setTipo('') : setTipo(e.target.value)}}
                     >
                         <option>Tipo</option>
@@ -221,12 +238,22 @@ function Inventario() {
                                         type='date'
                                         value={item.fechac}
                                         placeholder={producto.fechacompra}
-                                        onChange={(e) => setItem({ ...item, fechacompra: e.target.value })}/></div>
+                                        onChange={(e) => {
+                                            const fechaISO = e.target.value;
+                                            const [año, mes, dia] = fechaISO.split('-');
+                                            const fecha = `${dia}/${mes}/${año}`;
+                                            setItem({ ...item, fechacompra: fecha });
+                                        }}/></div>
                                     <div className='celda'><input 
                                         type='date'
                                         value={item.fechav}
                                         placeholder={producto.fechavencimiento}
-                                        onChange={(e) => setItem({ ...item, fechavencimiento: e.target.value })}/></div>
+                                        onChange={(e) => {
+                                            const fechaISO = e.target.value;
+                                            const [año, mes, dia] = fechaISO.split('-');
+                                            const fecha = `${dia}/${mes}/${año}`;
+                                            setItem({ ...item, fechavencimiento: fecha });
+                                        }}/></div>
                                     <div className='celda'><input 
                                         type='text'
                                         value={item.precioc}

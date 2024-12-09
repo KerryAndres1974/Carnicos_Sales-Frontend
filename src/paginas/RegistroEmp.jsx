@@ -25,7 +25,7 @@ function Registro() {
             const datosJSON = JSON.stringify({ nombre: nombre, correo: correo, pass: pass1, tel: tel });
             
             try {
-                const response = await fetch('http://localhost:8000/register', {
+                const response = await fetch('http://localhost:8000/empleados', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', },
                     body: datosJSON

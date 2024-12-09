@@ -2,7 +2,6 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
     background: #f0f0f0;
 }
 
@@ -13,13 +12,108 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
+    
     h1 {
         color: white;
     }
-
+    
     button {
         position: absolute;
         right: 30px;
     }
+}
+
+.cuerpo-informe {
+    padding: 0 30px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+
+    .secciones {
+        display: flex;
+        justify-content: space-around;
+    
+        h1 {
+            cursor: pointer;
+            border: 1px solid grey;
+            border-radius: 10px;
+            padding: 0 15px;
+            color: #9b2e2e;
+            transition: all 0.5s ease;
+            font-size: 30px;
+        }
+    
+        h1.hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+    }    
+    
+    .contenedor-ventas, .contenedor-compras {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 30px;
+        
+        .primera-seccion {
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            gap: 20px;
+            width: 80%;
+        }
+        
+        .elementos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+        }
+    
+        .elemento-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0 15px;
+            width: 250px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    .contenedor-clientes, .contenedor-productos {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 30px 50px 30px;
+
+        .fila, .cabeza {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            width: 100%;
+            height: 10%;
+            margin: 0 10px;
+            border: 1px solid grey;
+            border-radius: 10px;
+        }
+
+        .casilla {
+            width: 25%;
+            display: grid;
+            place-items: center;
+        }
+
+        .cabeza {
+            height: 100%;
+            color: #fff;
+            background: #9b2e2e;
+        }
+    }
+}
+
+.hidden {
+    cursor: not-allowed;
 }

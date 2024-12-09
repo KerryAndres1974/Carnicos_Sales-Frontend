@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../Auth/AuthProvider.jsx';
+import { useAuth } from '../auth/AuthProvider.jsx';
 import logo from '../multimedia/logoEmp.jpg';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
@@ -31,11 +31,11 @@ function Ingreso() {
 
         try {
             if (username !== '' && password !== '') {
-                let datos = { email: username, password: password };
-                let datosjson = JSON.stringify(datos);
+                const datos = JSON.stringify({ email: username, password: password });
+                
                 const respuesta = await fetch('http://localhost:8000/login', {
                     method: 'POST',
-                    body: datosjson,
+                    body: datos,
                     headers: { 'Content-Type': 'application/json' },
                 })
 
@@ -47,7 +47,9 @@ function Ingreso() {
                     const cargaUtilDeco = atob(cargaUtil);
                     const usuario = JSON.parse(cargaUtilDeco);
 
-                    auth.saveUser({ body: { accessToken: "dummyRefreshToken", refreshToken: token, role: usuario.cargo } });
+                    auth.saveUser({ body: { 
+                        accessToken: token, cargo: usuario.cargo } });
+
                     Swal.fire({
                         icon: 'success',
                         text: '¡Bienvenido!',
@@ -57,6 +59,7 @@ function Ingreso() {
                         timer: 2000,
                         showConfirmButton: false
                     });
+
                     if (usuario.cargo === 'gerente'){
                         goTo('/Gerencia');
                     } else {

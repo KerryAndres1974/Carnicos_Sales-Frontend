@@ -1,5 +1,5 @@
 import '../estilos/Detalleventas.css';
-import { useAuth } from '../Auth/AuthProvider';
+import { useAuth } from '../auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,11 +15,13 @@ function Detalleventas() {
     const [ventanaReservas, setVentanaReservas] = useState(false);
     const [filas, setFilas] = useState([
         {cantidad: '1', idProducto: '', articulo: '', precio: '', total: '' }]);
+    const [infoUser, setInfoUser] = useState({ cor: '', nom: '' });
+    const [empleado, setEmpleado] = useState([]);
 
     const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
+    const [realizado, setRealizado] = useState(false);
 
     useEffect(() => {
-
         const cargarReservas = async () => {
             // logica para traer las reservas desde el backend
             try {
@@ -35,13 +37,28 @@ function Detalleventas() {
                 console.error('Error al realizar la petición:', error);
             }
         }
+
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                // Divide el token en sus partes: encabezado, carga útil y firma
+                const [, cargaUtilBase64, ] = token.split('.');
+
+                // Decodifica la carga útil (segunda parte del token)
+                const cargaUtilDecodificada = atob(cargaUtilBase64);
+
+                // Convierte la carga útil decodificada a un objeto JavaScript
+                const usuario = JSON.parse(cargaUtilDecodificada);
+
+                // Puedes establecer el usuario en el estado
+                setEmpleado(usuario);
+            } catch (error) {
+                console.error('Error al decodificar el token:', error);
+            }
+        }
+
         cargarReservas();
     }, []);
-
-    const logeado = () => {
-        const accesstoken = auth.login();
-        return accesstoken;
-    }
 
     const deslogeado = () => {
         window.location.reload();
@@ -146,24 +163,31 @@ function Detalleventas() {
         e.preventDefault();
 
         const filasFiltradas = filas.slice(0,-1).map(fila => ({
+            id: fila.idProducto,
             nombre: fila.articulo,
             cantidad: fila.cantidad
         }));
+
+        const venta = { 
+            id: factura.id,
+            idempleado: empleado.id,
+            totalventa: calcularTotal(),
+            fecha: factura.fecha,
+            producto: filasFiltradas 
+        }
+
+        const datos = JSON.stringify({ venta: venta, cliente: infoUser });
         
         try {
             const response = await fetch('http://localhost:8000/ventas', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: factura.id,
-                    nombreempleado: logeado().role,
-                    totalventa: calcularTotal(),
-                    fecha: factura.fecha,
-                    producto: filasFiltradas
-                })
+                body: datos,
+                headers: { 'Content-Type': 'application/json' }
             });
 
             if (response.ok) {
+                setRealizado(true);
+
                 Swal.fire({
                     icon: 'success',
                     text: 'Venta realizada!',
@@ -174,6 +198,7 @@ function Detalleventas() {
                     position: 'top',
                     timerProgressBar: true,
                 }).then(() => window.location.reload());
+
             } else {
                 throw new Error('Error en la solicitud al backend');
             }
@@ -218,13 +243,13 @@ function Detalleventas() {
             <header className='cabezera-ventas'>
                 <h1>DETALLE DE VENTA</h1>
 
-                {logeado().role === 'vendedor' && <div>
+                {empleado.cargo === 'vendedor' && <div>
                     <button onClick={() => setVentanaReservas((prev) => !prev)}>ver reservas ({reservas.length})</button>
                     <button onClick={() => {goTo('/Inventario')}}>inventario</button>
                     <button onClick={deslogeado}>salir</button>
                 </div>}
 
-                {logeado().role === 'gerente' && <div>
+                {empleado.cargo === 'gerente' && <div>
                     <button onClick={() => setVentanaReservas((prev) => !prev)}>ver reservas ({reservas.length})</button>
                     <button onClick={() => {goTo('/Gerencia')}}>regresar</button>
                 </div>}
@@ -302,7 +327,12 @@ function Detalleventas() {
             {ventanaReservas && (
                 <div className='contenedor-reservas'>
                     {reservas.map((reserva) => (
-                        <div key={reserva.idreserva} onClick={() => {setReservaSeleccionada(reserva); setVentana2(true)}} className='contenedorXReserva'>
+                        <div 
+                            key={reserva.idreserva} 
+                            onClick={() => {setReservaSeleccionada(reserva)
+                                setVentana2(true)}} 
+                            className='contenedorXReserva'
+                        >
                             {reserva.fecha}
                         </div>
                     ))}                    
@@ -315,6 +345,22 @@ function Detalleventas() {
                         <h2>Factura</h2>
                         <p><strong>ID:</strong> {factura.id}</p>
                         <p><strong>Fecha:</strong> {factura.fecha}</p>
+
+                        <div className='campo'>
+                            <input 
+                                type='text' 
+                                value={infoUser.cor}
+                                placeholder='Correo Electronico' 
+                                onChange={(e) => setInfoUser((prev) => ({ ...prev, cor: e.target.value }))} />
+                            
+                            <input 
+                                type='text' 
+                                value={infoUser.nom}
+                                placeholder='Nombre del Cliente' 
+                                onChange={(e) => setInfoUser((prev) => ({ ...prev, nom: e.target.value }))} />
+
+                        </div>
+
                         <table>
                             <thead>
                                 <tr>
@@ -338,7 +384,7 @@ function Detalleventas() {
                         <p><strong>Total:</strong> ${calcularTotal()}</p>
                         <div className='botones-modal'>
                             <button onClick={() => setVentana1(false)}>Cerrar</button>
-                            <button onClick={sendFacturas}>Confirmar</button>
+                            <button onClick={sendFacturas} disabled={realizado === true}>Confirmar</button>
                         </div>
                     </div>
                 </div>
@@ -358,8 +404,8 @@ function Detalleventas() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {reservaSeleccionada.productos.map((producto) => (
-                                    <tr key={producto.idproducto}>
+                                {reservaSeleccionada.producto.map((producto) => (
+                                    <tr key={producto.id}>
                                         <td>{producto.cantidad} {producto.cantidad > 1 ? 'Libras' : 'Libra'}</td>
                                         <td>{producto.nombre}</td>
                                     </tr>

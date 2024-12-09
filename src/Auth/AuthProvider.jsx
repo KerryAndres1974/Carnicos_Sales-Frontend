@@ -4,7 +4,6 @@ const AuthContext = createContext({
     saveUser: () => {},
     logout: () => {},
     login: () => {},
-    role: ''
 });
 
 export function AuthProvider({ children }) {
@@ -13,47 +12,39 @@ export function AuthProvider({ children }) {
         return storedToken ? JSON.parse(storedToken) : "";
     });
 
-    const [, setRefreshToken] = useState("");
-    const [role, setRole] = useState(() => {
-        const storedRole = localStorage.getItem("role");
-        return storedRole || "";
+    const [cargo, setCargo] = useState(() => {
+        const storedCargo = localStorage.getItem("cargo");
+        return storedCargo ? JSON.parse(storedCargo) : "";
     });
-
+    
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
-        if (storedToken) {
-            setAccessToken(JSON.parse(storedToken));
-        }
-
-        const storedRole = localStorage.getItem("role");
-        if (storedRole) {
-            setRole(storedRole)
-        }
+        const storedCargo = localStorage.getItem("cargo");
+        if (storedToken) setAccessToken(JSON.parse(storedToken));
+        if (storedCargo) setCargo(JSON.parse(storedCargo));
     }, []);
 
     function login() {
-        return { accessToken, role };
+        return { accessToken, cargo };
     }
 
     function logout() {
+        setCargo("");
         setAccessToken("");
-        setRefreshToken("");
-        setRole("");
         localStorage.removeItem("token");
-        localStorage.removeItem("role");
+        localStorage.removeItem("cargo");
     }
 
     function saveUser(userData) {
+        setCargo(userData.body.cargo);
         setAccessToken(userData.body.accessToken);
-        setRefreshToken(userData.body.refreshToken);
-        setRole(userData.body.role);
 
-        localStorage.setItem("token", JSON.stringify(userData.body.refreshToken));
-        localStorage.setItem("role", userData.body.role);
+        localStorage.setItem("token", JSON.stringify(userData.body.accessToken));
+        localStorage.setItem("cargo", JSON.stringify(userData.body.cargo));
     }
 
     return (
-        <AuthContext.Provider value={{ saveUser, logout, login, role }}>
+        <AuthContext.Provider value={{ saveUser, logout, login }}>
             {children}
         </AuthContext.Provider>
     );

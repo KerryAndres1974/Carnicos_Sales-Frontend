@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { AuthProvider } from './Auth/AuthProvider.jsx';
+import { AuthProvider } from './auth/AuthProvider.jsx';
 import RutaProtegida from './rutasProtegidas.js';
 import ReactDOM from 'react-dom/client';
 import React from 'react';
@@ -40,7 +40,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <RutaProtegida rolesPermitidos={['gerente', 'vendedor']} />,
+    element: <RutaProtegida allowedRoles={['gerente', 'vendedor']} />,
     children: [
       {
         path: '/Detalleventas',
@@ -54,7 +54,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <RutaProtegida rolesPermitidos={['gerente']} />,
+    element: <RutaProtegida allowedRoles={['gerente']} />,
     children: [
       {
         path: '/Gerencia',
