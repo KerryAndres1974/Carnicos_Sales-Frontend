@@ -8,21 +8,36 @@
     background: #f0f0f0;
 }
 
-section {
+.logos {
     width: 80%;
     display: flex;
     align-items: center;
     justify-content: space-around;
 
+    h1 {
+        font-size: 2rem;
+    }
+
+    img {
+        border-radius: 10px;
+    }
+}
+
+.botones {
+    width: 80%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
     .botonG {
-        font-size: 1.6rem;
-        padding: 30px;
+        font-size: 1.2rem;
+        padding: 20px;
         background: #7d3c3c;
         color: #fff;
         border-radius: 8px;
         cursor: pointer;
         text-align: center;
-        width: 250px;
+        width: 200px;
         border: transparent;
         transition: 0.5s ease;
         &:hover {

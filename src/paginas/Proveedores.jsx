@@ -104,6 +104,61 @@ function Proveedores() {
 
     async function editProveedor(id, accion) {
         
+        if (accion) {
+            const result = await Swal.fire({
+                icon: 'question',
+                text: '¿Seguro de eliminar este proveedor?',
+                showCancelButton: true,
+                confirmButtonText: 'Si, eliminar',
+                cancelButtonText: 'No, cancelar'
+            });
+
+            if (!result.isConfirmed) {
+                return;
+            }
+        }
+
+        try {
+
+            const activoItem = await new Promise((resolve) => {
+                setItem((prevItem) => {
+                    const newItem = accion ? { ...prevItem, activo: false } : prevItem;
+                    resolve(newItem);
+                    return newItem;
+                });
+            });
+
+            const filtroItem = Object.fromEntries(
+                Object.entries(activoItem).filter(([_, valor]) => valor !== '')
+            );
+
+            console.log(filtroItem)
+
+            const response = await fetch(`http://localhost:8000/proveedores/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(filtroItem)
+            });
+
+            if (response.ok) {
+                await Swal.fire({
+                    icon: 'success',
+                    text: accion ? 'Proveedor eliminado con exito!' : 'Proveedor editado con exito!',
+                    toast: true,
+                    width: accion ? '30%': '', 
+                    color: accion ? 'red' : 'green',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    position: 'top',
+                    timerProgressBar: true,
+                }).then(() => window.location.reload());
+            } else {
+                throw new Error('Error en la solicitud al backend');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
     }
 
     return(
@@ -121,18 +176,55 @@ function Proveedores() {
                             <th>Telefono</th>
                             <th>Direccion</th>
                             <th>Tipo Producto</th>
-                            <th></th>
+                            <th>Editar</th>
                         </tr>
                     </thead>
                     <tbody className='elementos'>
                         {proveedores.map((proveedor) => (
                             <tr key={proveedor.idproveedor}>
-
                                 <td>{proveedor.idproveedor}</td>
-                                <td>{proveedor.nombre}</td>
-                                <td>{proveedor.telefono}</td>
-                                <td>{proveedor.direccion}</td>
-                                <td>{proveedor.tipoproducto}</td>
+                                {editar !== proveedor.idproveedor ? 
+                                    <>
+                                        <td>{proveedor.nombre}</td>
+                                        <td>{proveedor.telefono}</td>
+                                        <td>{proveedor.direccion}</td>
+                                        <td>{proveedor.tipoproducto}</td>                                
+                                    </>
+                                    :
+                                    <>
+                                        <td>
+                                            <input 
+                                                type='text'
+                                                value={item.nombre}
+                                                placeholder={proveedor.nombre}
+                                                onChange={(e) => setItem({ ...item, nombre: e.target.value })}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input 
+                                                type='text'
+                                                value={item.telefono}
+                                                placeholder={proveedor.telefono}
+                                                onChange={(e) => setItem({ ...item, telefono: e.target.value })}
+                                            />
+                                        </td><td>
+                                            <input 
+                                                type='text'
+                                                value={item.direccion}
+                                                placeholder={proveedor.direccion}
+                                                onChange={(e) => setItem({ ...item, direccion: e.target.value })}
+                                            />
+                                        </td><td>
+                                            <input 
+                                                type='text'
+                                                value={item.tipo}
+                                                placeholder={proveedor.tipoproducto}
+                                                onChange={(e) => setItem({ ...item, tipoproducto: e.target.value })}
+                                            />
+                                        </td>
+                                    </>
+                                }
+
                                 <td style={{ display: 'flex', justifyContent: 'space-around' }}>
 
                                     {editar === proveedor.idproveedor && <FaTrash 
@@ -155,9 +247,9 @@ function Proveedores() {
 
                                 </td>
                                 
-                            </tr>
-                            
+                            </tr>    
                         ))}
+
                         {inputs &&
                             filas.map((fila, i) => (
                             <tr key={i}>

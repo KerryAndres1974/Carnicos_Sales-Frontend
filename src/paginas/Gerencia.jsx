@@ -1,6 +1,7 @@
 import '../estilos/Gerencia.css'
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/AuthProvider';
+import logo from '../multimedia/logoEmp.jpg';
 
 function Gerencia() {
     const auth = useAuth()
@@ -13,13 +14,17 @@ function Gerencia() {
 
     return(
         <div className='principal-gerencia'>
-            <section>
+
+            <section className='logos'>
+                <h1>Administracion Cárnicos Sales</h1>
+                <img src={logo} alt="" />
+            </section>
+
+            <section className='botones'>
                 <button className='botonG' onClick={() => {goTo('/Inventario')}}>Inventario</button>
                 <button className='botonG' onClick={() => {goTo('/Informe')}}>Informe</button>
                 <button className='botonG' onClick={() => {goTo('/Detalleventas')}}>Ventas</button>
-            </section>
                 
-            <section>
                 <button className='botonG' onClick={() => {goTo('/Compras')}}>Compras</button>
                 <button className='botonG' onClick={() => {goTo('/Proveedores')}}>Proveedores</button>
                 <button className='botonG' onClick={deslogeado}>Salir</button>
