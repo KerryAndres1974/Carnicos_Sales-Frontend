@@ -267,7 +267,9 @@ function Informe() {
                             {ventasFiltradas.map((venta) => (
                                 <div key={venta.id} className="elemento-card">
                                     <p><strong>ID Venta:</strong> {venta.id}</p>
-                                    <p><strong>Nombre Vendedor:</strong> {venta.nombreempleado}</p>
+                                    {venta.idvendedor ? <p>
+                                        <strong>ID Vendedor:</strong> {venta.idvendedor}
+                                    </p> : <strong>Hecho en reservas</strong>}
                                     <p><strong>Fecha:</strong> {venta.fecha}</p>
                                     <p><strong>Total Venta:</strong> ${venta.valor_compra}</p>
                                     <h4>Productos:</h4>

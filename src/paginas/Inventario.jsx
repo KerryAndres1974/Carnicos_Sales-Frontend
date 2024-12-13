@@ -176,7 +176,7 @@ function Inventario() {
                         <div className='celda'>Fecha Compra</div>
                         <div className='celda'>Fecha Vencimiento</div>
                         <div className='celda'>Precio de Compra</div>
-                        <div className='celda'></div>
+                        {empleado.cargo === 'gerente' ? <div className='celda'></div> : null}
                     </div>
 
                     <div className='cuerpo-tabla'>
@@ -261,7 +261,7 @@ function Inventario() {
                                         onChange={(e) => setItem({ ...item, preciocompra: e.target.value })}/></div>
                                 </>}
 
-                                <div className='celda' style={{ display: 'flex', justifyContent: 'space-evenly' }}>
+                                {empleado.cargo === 'gerente' ? <div className='celda' style={{ display: 'flex', justifyContent: 'space-evenly' }}>
                                     {editar === producto.idproducto && <FaTrash 
                                         title='Eliminar'
                                         style={{ color: 'red', cursor: 'pointer' }}
@@ -279,7 +279,7 @@ function Inventario() {
                                         title='Confirmar'
                                         style={{ color: 'green', cursor: 'pointer' }}
                                         onClick={() => editProducto(producto.idproducto, false)}/>}
-                                </div>
+                                </div> : null}
                             </div>
                         ))}
                     </div>

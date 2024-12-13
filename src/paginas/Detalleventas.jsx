@@ -333,7 +333,12 @@ function Detalleventas() {
                                 setVentana2(true)}} 
                             className='contenedorXReserva'
                         >
-                            {reserva.fecha}
+                            <p>{reserva.fecha}</p>
+                            <p style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <strong>{reserva.idreserva}</strong>
+                                {reserva.domicilio ? 
+                                    <p>Domicilio</p> : null}
+                            </p>
                         </div>
                     ))}                    
                 </div>
@@ -394,7 +399,12 @@ function Detalleventas() {
                 <div className='modal'>
                     <div className='contenido-modal'>
                         <h2>Tiquete de Reserva</h2>
-                        <p><strong>ID:</strong> {reservaSeleccionada.idreserva}</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div><strong>ID: </strong>{reservaSeleccionada.idreserva}</div>
+                            <strong style={{ color: 'green' }}>
+                                {reservaSeleccionada.domicilio ? 'Entrega a domicilio' : ''}
+                            </strong>
+                        </div>
                         <p><strong>Fecha:</strong> {reservaSeleccionada.fecha}</p>
                         <table>
                             <thead>

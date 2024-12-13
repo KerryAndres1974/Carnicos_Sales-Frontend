@@ -67,7 +67,7 @@ function App() {
             }
         }
 
-        const datos = JSON.stringify({ reserva: reservados, cliente: infoUser });
+        const datos = JSON.stringify({ reserva: reservados, cliente: infoUser, domicilio: domicilio });
         
         try {
             const response = await fetch('http://localhost:8000/reservas', {
